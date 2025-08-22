@@ -1,1 +1,0 @@
-# Sketchify-by-Creactive
