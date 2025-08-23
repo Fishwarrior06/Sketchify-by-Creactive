@@ -5,8 +5,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import com.creactive.sketchify.data.Userservice
+import com.creactive.sketchify.data.UserService
 import com.creactive.sketchify.models.User
 
 @Composable
@@ -29,12 +30,12 @@ fun LoginScreen(
         ) {
             Text("Inicia sesión", style = MaterialTheme.typography.headlineSmall)
             Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(value = username, onValueChange = { username = it }, label = { Text("Usuario") })
+            OutlinedTextField(value = username, onValueChange = { username = it }, label = { Text("Usuario") }, singleLine = true)
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text("Contraseña") })
+            OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text("Contraseña") }, visualTransformation = PasswordVisualTransformation(), singleLine = true)
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = {
-                val user = Userservice.login(username, password)
+                val user = UserService.login(username, password)
                 if (user != null) {
                     errorMessage = null
                     onLoginSuccess(user)

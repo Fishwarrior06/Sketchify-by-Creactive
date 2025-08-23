@@ -1,5 +1,4 @@
 package com.creactive.sketchify.models
-
 data class Profile (
     val id : Int,
     val userId: Int,
