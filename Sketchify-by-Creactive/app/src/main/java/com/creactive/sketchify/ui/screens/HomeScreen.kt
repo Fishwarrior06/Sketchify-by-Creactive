@@ -24,7 +24,7 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "Hola ${user.name}", style = MaterialTheme.typography.bodyLarge)
+                        Text(text = "Hola ${user.name}!", style = MaterialTheme.typography.bodyLarge)
                         Text(text = "Sketchify", style = MaterialTheme.typography.titleMedium)
                     }
                 }
