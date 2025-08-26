@@ -15,8 +15,9 @@ fun LoginScreen(
     onLoginSuccess: (User) -> Unit,
     onNavigateToRegister: () -> Unit
 ) {
+    //Las variables de la clase user que debemos de llenar para hacer login
     var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") } // por ahora ignoramos
+    var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     Scaffold { innerPadding ->
@@ -28,6 +29,7 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            //Aqui estan los textboxes que me permiten registrarme
             Text("Inicia sesión", style = MaterialTheme.typography.headlineSmall)
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(value = username, onValueChange = { username = it }, label = { Text("Usuario") }, singleLine = true)
@@ -35,6 +37,7 @@ fun LoginScreen(
             OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text("Contraseña") }, visualTransformation = PasswordVisualTransformation(), singleLine = true)
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = {
+                //Si el user no existe osea null te va a decir usuario no encontrado en caso de existir te manda al homescreen
                 val user = UserService.login(username, password)
                 if (user != null) {
                     errorMessage = null
@@ -45,6 +48,7 @@ fun LoginScreen(
             }) {
                 Text("Entrar")
             }
+            //Boton de registrarse
             Spacer(modifier = Modifier.height(8.dp))
             TextButton(onClick = { onNavigateToRegister() }) {
                 Text("Registrarse")
