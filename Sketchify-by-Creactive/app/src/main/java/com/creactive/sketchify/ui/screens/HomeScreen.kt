@@ -15,6 +15,7 @@ import com.creactive.sketchify.models.User
 fun HomeScreen(
     user: User
 ) {
+    //Barra superior de la app.
     Scaffold(
         topBar = {
             TopAppBar(
@@ -24,6 +25,7 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        //Te muestra tu nombre y el nombre de la app como titulo
                         Text(text = "Hola ${user.name}!", style = MaterialTheme.typography.bodyLarge)
                         Text(text = "Sketchify", style = MaterialTheme.typography.titleMedium)
                     }
@@ -31,7 +33,7 @@ fun HomeScreen(
             )
         },
         bottomBar = {
-            // Footer placeholder
+            // Footer donde van los botones de navegacion
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -55,11 +57,13 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            //Titulo de bienvenida en la homescreen (todo este ultimo bloque de codigo es placeholder)
             Text(
                 text = "Bienvenido a Sketchify 👋",
                 style = MaterialTheme.typography.headlineSmall
             )
             Spacer(modifier = Modifier.height(20.dp))
+            //La homescreen te muestra tu user y tu correo y tu rol para ver si el json loader funciona
             Text("Tu usuario: ${user.username}")
             Text("Tu correo: ${user.email}")
             Text("Rol: ${user.role}")

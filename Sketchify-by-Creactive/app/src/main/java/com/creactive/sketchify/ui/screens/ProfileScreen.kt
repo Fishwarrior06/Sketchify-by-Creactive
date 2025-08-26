@@ -8,6 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.creactive.sketchify.data.ProfileService
 
+//ESTO POR EL MOMENTO ES UN PLACEHOLDER
+
 @Composable
 fun ProfileScreen(userId: Int) {
     val profile = remember { ProfileService.getProfileByUserId(userId) }
