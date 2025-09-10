@@ -7,66 +7,60 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.creactive.sketchify.models.User
+import androidx.navigation.NavController
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(
-    user: User
-) {
-    //Barra superior de la app.
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        //Te muestra tu nombre y el nombre de la app como titulo
-                        Text(text = "Hola ${user.name}!", style = MaterialTheme.typography.bodyLarge)
-                        Text(text = "Sketchify", style = MaterialTheme.typography.titleMedium)
-                    }
-                }
-            )
-        },
-        bottomBar = {
-            // Footer donde van los botones de navegacion
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp)
-                    .background(Color.LightGray),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Aquí pondremos los botones/tabs para navegar entre screens
-                Text("Screen 1")
-                Text("Screen 2")
-                Text("Screen 3")
-            }
-        }
-    ) { paddingValues ->
+fun HomeScreen(navController: NavController) {
+    Scaffold { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(innerPadding)
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            //Titulo de bienvenida en la homescreen (todo este ultimo bloque de codigo es placeholder)
+            // 🔝 Mensaje superior
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {}
             Text(
-                text = "Bienvenido a Sketchify 👋",
-                style = MaterialTheme.typography.headlineSmall
+                text = "Placeholder",
+                style = MaterialTheme.typography.headlineMedium
             )
-            Spacer(modifier = Modifier.height(20.dp))
-            //La homescreen te muestra tu user y tu correo y tu rol para ver si el json loader funciona
-            Text("Tu usuario: ${user.username}")
-            Text("Tu correo: ${user.email}")
-            Text("Rol: ${user.role}")
+
+            // 📦 Espacio para imagen
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(550.dp)
+                    .background(Color.LightGray),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Aquí irá la imagen")
+            }
+
+            // 🔘 Botones inferiores
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Button(
+                    onClick = { /* TODO: lógica subir foto */ },
+                    modifier = Modifier.weight(1f).padding(end = 8.dp)
+                ) {
+                    Text("Subir foto")
+                }
+                Button(
+                    onClick = { navController.navigate("PhotoType") }, // Aquí navega
+                    modifier = Modifier.weight(1f).padding(start = 8.dp)
+                ) {
+                    Text("Tomar foto")
+                }
+            }
         }
     }
 }

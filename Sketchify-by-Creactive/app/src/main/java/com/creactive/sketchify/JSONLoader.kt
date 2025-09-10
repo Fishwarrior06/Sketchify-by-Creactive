@@ -1,8 +1,6 @@
-package com.creactive.sketchify.data
+/* package com.creactive.sketchify.data
 
 import android.content.Context
-import com.creactive.sketchify.models.User
-import com.creactive.sketchify.models.Profile
 import com.google.gson.Gson
 import java.io.IOException
 
@@ -39,4 +37,4 @@ object JsonLoader {
             print(message = "Todo salio mien")
         }
     }
-}
+} */
