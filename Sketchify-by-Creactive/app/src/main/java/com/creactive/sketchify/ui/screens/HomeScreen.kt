@@ -3,16 +3,21 @@ package com.creactive.sketchify.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
 @Composable
 fun HomeScreen(navController: NavController) {
+
+    // Estados principales
+    var currentImage by remember { mutableStateOf<String?>(null) } // URL o path de la foto
+    var hasPhoto by remember { mutableStateOf(false) } // Si ya hay foto
+    var modo by remember { mutableStateOf("") } // "camara" o "galeria"
+
     Scaffold { innerPadding ->
         Column(
             modifier = Modifier
@@ -22,13 +27,10 @@ fun HomeScreen(navController: NavController) {
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             // 🔝 Mensaje superior
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {}
             Text(
-                text = "Placeholder",
+                text = if (hasPhoto) "Foto cargada" else "Placeholder",
                 style = MaterialTheme.typography.headlineMedium
             )
 
@@ -40,7 +42,11 @@ fun HomeScreen(navController: NavController) {
                     .background(Color.LightGray),
                 contentAlignment = Alignment.Center
             ) {
-                Text("Aquí irá la imagen")
+                if (currentImage != null) {
+                    Text("Aquí mostrarías la foto: $currentImage")
+                } else {
+                    Text("Aquí irá la imagen")
+                }
             }
 
             // 🔘 Botones inferiores
@@ -48,14 +54,23 @@ fun HomeScreen(navController: NavController) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                // Botón subir foto
                 Button(
-                    onClick = { /* TODO: lógica subir foto */ },
+                    onClick = {
+                        modo = "galeria"
+                        navController.navigate("PhotoType?modo=galeria")
+                    },
                     modifier = Modifier.weight(1f).padding(end = 8.dp)
                 ) {
                     Text("Subir foto")
                 }
+
+                // Botón tomar foto
                 Button(
-                    onClick = { navController.navigate("PhotoType") }, // Aquí navega
+                    onClick = {
+                        modo = "camara"
+                        navController.navigate("PhotoType?modo=camara")
+                    },
                     modifier = Modifier.weight(1f).padding(start = 8.dp)
                 ) {
                     Text("Tomar foto")

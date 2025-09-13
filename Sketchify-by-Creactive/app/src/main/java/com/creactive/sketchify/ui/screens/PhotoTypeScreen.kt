@@ -9,14 +9,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun PhotoTypeScreen(navController: NavController) {
-    var selectedBox by remember { mutableIntStateOf(-1) } // Para saber qué box seleccionaste
+fun PhotoTypeScreen(navController: NavController, modo: String) {
+    var selectedBox by remember { mutableStateOf(-1) } // Para saber qué box seleccionaste
 
     Scaffold { padding ->
         Column(
@@ -49,8 +47,8 @@ fun PhotoTypeScreen(navController: NavController) {
                             val index = row * 2 + col
                             Box(
                                 modifier = Modifier
-                                    .width(175.dp)        // ancho fijo
-                                    .height(310.dp)       // altura modificada
+                                    .width(175.dp)
+                                    .height(310.dp)
                                     .background(
                                         if (selectedBox == index) Color.Green else Color.LightGray,
                                         shape = RoundedCornerShape(8.dp)
@@ -69,18 +67,22 @@ fun PhotoTypeScreen(navController: NavController) {
 
             // Botón seleccionar marco
             Button(
-                onClick = { /* Aquí podrías hacer algo con selectedBox */ },
+                onClick = {
+                    if (selectedBox != -1) {
+                        // Guardamos la selección en el previousBackStackEntry
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("selectedBox", selectedBox)
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("modo", modo)
+                        navController.popBackStack()
+                    }
+                },
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 Text("Seleccionar marco")
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PhotoTypeScreenPreview() {
-    val fakeNavController = rememberNavController()
-    PhotoTypeScreen(navController = fakeNavController)
 }
