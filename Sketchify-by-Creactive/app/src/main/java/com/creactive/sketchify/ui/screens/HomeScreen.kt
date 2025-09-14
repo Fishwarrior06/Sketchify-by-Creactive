@@ -7,16 +7,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun HomeScreen(navController: NavController) {
-
-    // Estados principales
-    var currentImage by remember { mutableStateOf<String?>(null) } // URL o path de la foto
-    var hasPhoto by remember { mutableStateOf(false) } // Si ya hay foto
-    var modo by remember { mutableStateOf("") } // "camara" o "galeria"
+    var currentImage by remember { mutableStateOf<String?>(null) }
+    var hasPhoto by remember { mutableStateOf(false) }
+    var modo by remember { mutableStateOf("") }
 
     Scaffold { innerPadding ->
         Column(
@@ -24,21 +24,21 @@ fun HomeScreen(navController: NavController) {
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            // 🔝 Mensaje superior
+            // 🔝 Título
             Text(
                 text = if (hasPhoto) "Foto cargada" else "Placeholder",
                 style = MaterialTheme.typography.headlineMedium
             )
 
-            // 📦 Espacio para imagen
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 📦 Área de imagen
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(550.dp)
+                    .height(645.dp)
                     .background(Color.LightGray),
                 contentAlignment = Alignment.Center
             ) {
@@ -49,33 +49,50 @@ fun HomeScreen(navController: NavController) {
                 }
             }
 
-            // 🔘 Botones inferiores
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+            Spacer(modifier = Modifier.weight(1f)) // 👈 Empuja los botones hacia abajo
+
+            // 🔘 Bloque de botones
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Botón subir foto
-                Button(
-                    onClick = {
-                        modo = "galeria"
-                        navController.navigate("PhotoType?modo=galeria")
-                    },
-                    modifier = Modifier.weight(1f).padding(end = 8.dp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Subir foto")
+                    Button(
+                        onClick = {
+                            modo = "galeria"
+                            navController.navigate("PhotoType?modo=galeria")
+                        },
+                        modifier = Modifier.weight(1f).padding(end = 8.dp)
+                    ) {
+                        Text("Subir foto")
+                    }
+
+                    Button(
+                        onClick = {
+                            modo = "camara"
+                            navController.navigate("PhotoType?modo=camara")
+                        },
+                        modifier = Modifier.weight(1f).padding(start = 8.dp)
+                    ) {
+                        Text("Tomar foto")
+                    }
                 }
 
-                // Botón tomar foto
-                Button(
-                    onClick = {
-                        modo = "camara"
-                        navController.navigate("PhotoType?modo=camara")
-                    },
-                    modifier = Modifier.weight(1f).padding(start = 8.dp)
-                ) {
-                    Text("Tomar foto")
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Button(onClick = {
+                    navController.navigate("PastSessions")}) {
+                    Text("Sesiones pasadas")
                 }
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenPreview() {
+    HomeScreen(navController = rememberNavController())
 }

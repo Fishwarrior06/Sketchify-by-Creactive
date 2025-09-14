@@ -11,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.creactive.sketchify.ui.screens.HomeScreen
 import com.creactive.sketchify.ui.screens.PhotoTypeScreen
+import com.creactive.sketchify.ui.screens.PastSessionsScreen
 import com.creactive.sketchify.ui.theme.SketchifyTheme
 
 class MainActivity : ComponentActivity() {
@@ -40,6 +41,9 @@ class MainActivity : ComponentActivity() {
                     ) { backStackEntry ->
                         val modo = backStackEntry.arguments?.getString("modo") ?: "camara"
                         PhotoTypeScreen(navController, modo)
+                    }
+                    composable("PastSessions") {
+                        PastSessionsScreen(navController)
                     }
                 }
             }
