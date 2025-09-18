@@ -102,7 +102,7 @@ fun PhotoTypeScreen(navController: NavController, modo: String, windowSizeClass:
                         navController.previousBackStackEntry
                             ?.savedStateHandle
                             ?.set("modo", modo)
-                        navController.popBackStack()
+                        navController.navigate("PhotoBooth")
                     }
                 },
                 modifier = Modifier.align(Alignment.CenterHorizontally)
