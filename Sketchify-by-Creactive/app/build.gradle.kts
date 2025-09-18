@@ -64,11 +64,14 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation("io.coil-kt:coil-compose:2.7.0")
     implementation("androidx.navigation:navigation-compose:2.9.4")
     implementation("androidx.compose.material3:material3-window-size-class-android:1.3.2")
     implementation("androidx.camera:camera-core:1.5.0")
     implementation("androidx.camera:camera-camera2:1.5.0")
     implementation("androidx.camera:camera-lifecycle:1.5.0")
     // the CameraX Extensions library
+    implementation("androidx.camera:camera-view:1.5.0")
     implementation("androidx.camera:camera-extensions:1.5.0")
+
 }

@@ -128,7 +128,7 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable("PhotoBooth") {
-                        PhotoBooth(lifecycleOwner = this@MainActivity)
+                        PhotoBooth(lifecycleOwner = this@MainActivity, windowSizeClass)
                     }
 
                 }
