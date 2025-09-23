@@ -1,27 +1,47 @@
 package com.creactive.sketchify.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.creactive.sketchify.data.frames
 
 @Composable
 fun PhotoTypeScreen(navController: NavController, modo: String, windowSizeClass: WindowSizeClass) {
-    var selectedBox by remember { mutableIntStateOf(-1) }
+    var selectedIndex by remember { mutableIntStateOf(-1) }
 
-    // Ajustes dinámicos según tamaño de pantalla
     val boxWidth = when (windowSizeClass.widthSizeClass) {
         WindowWidthSizeClass.Compact -> 175.dp
         WindowWidthSizeClass.Medium -> 175.dp
@@ -50,40 +70,57 @@ fun PhotoTypeScreen(navController: NavController, modo: String, windowSizeClass:
                 .padding(padding)
                 .padding(16.dp)
         ) {
-            // 🔙 Botón regresar
             Button(
                 onClick = { navController.popBackStack() },
                 modifier = Modifier.align(Alignment.Start)
-            ) {
-                Text("Regresar")
-            }
+            ) { Text("Regresar") }
 
             Spacer(modifier = Modifier.height(spacing))
 
-            // 📦 Grid de 4 boxes
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(spacing),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                for (row in 0 until 2) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(spacing)
-                    ) {
-                        for (col in 0 until 2) {
-                            val index = row * 2 + col
+                val rows = 2
+                val cols = 2
+                for (row in 0 until rows) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(spacing)) {
+                        for (col in 0 until cols) {
+                            val index = row * cols + col
+                            val frame = frames.getOrNull(index)
+
                             Box(
                                 modifier = Modifier
                                     .width(boxWidth)
                                     .height(boxHeight)
                                     .background(
-                                        if (selectedBox == index) Color.Green else Color.LightGray,
+                                        if (selectedIndex == index) Color.Green else Color.LightGray,
                                         shape = RoundedCornerShape(8.dp)
                                     )
-                                    .clickable { selectedBox = index },
+                                    .clickable { selectedIndex = index },
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text("Box ${index + 1}")
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier.padding(8.dp)
+                                ) {
+                                    // Imagen dinámica según cada frame
+                                    frame?.drawableRes?.let { res ->
+                                        Image(
+                                            painter = painterResource(id = frame.drawableRes),
+                                            contentDescription = frame.name,
+                                            modifier = Modifier
+                                                .size(250.dp)
+                                                .padding(bottom = 8.dp),
+                                            contentScale = ContentScale.Fit
+                                        )
+                                    }
+
+                                    // Texto del frame
+                                    Text(frame?.name ?: "Box ${index + 1}")
+                                }
                             }
                         }
                     }
@@ -92,23 +129,29 @@ fun PhotoTypeScreen(navController: NavController, modo: String, windowSizeClass:
 
             Spacer(modifier = Modifier.height(spacing))
 
-            // Botón seleccionar marco
             Button(
                 onClick = {
-                    if (selectedBox != -1) {
-                        navController.previousBackStackEntry
+                    val selectedFrame = frames.getOrNull(selectedIndex)
+                    if (selectedFrame != null) {
+                        navController.currentBackStackEntry
                             ?.savedStateHandle
-                            ?.set("selectedBox", selectedBox)
-                        navController.previousBackStackEntry
+                            ?.set("selectedFrameId", selectedFrame.id)
+                        navController.currentBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("selectedFrameSlots", selectedFrame.slots)
+                        navController.currentBackStackEntry
                             ?.savedStateHandle
                             ?.set("modo", modo)
-                        navController.navigate("PhotoBooth")
+
+                        if (modo == "camara") {
+                            navController.navigate("PhotoBooth")
+                        } else {
+                            navController.navigate("OtroModoScreen")
+                        }
                     }
                 },
                 modifier = Modifier.align(Alignment.CenterHorizontally)
-            ) {
-                Text("Seleccionar marco")
-            }
+            ) { Text("Seleccionar marco") }
         }
     }
 }
@@ -120,6 +163,8 @@ fun PhotoTypeScreenPreviewCompact() {
     PhotoTypeScreen(
         navController = rememberNavController(),
         modo = "camara",
-        windowSizeClass = WindowSizeClass.calculateFromSize(androidx.compose.ui.unit.DpSize(400.dp, 800.dp))
+        windowSizeClass = WindowSizeClass.calculateFromSize(
+            DpSize(400.dp, 800.dp)
+        )
     )
 }

@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -53,7 +54,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation("androidx.navigation:navigation-compose:2.9.4")
     implementation("com.google.code.gson:gson:2.13.2")
-    implementation(platform("com.google.firebase:firebase-bom:34.2.0"))
+    implementation(platform("com.google.firebase:firebase-bom:34.3.0"))
     implementation("com.google.firebase:firebase-crashlytics-ndk")
     implementation("com.google.firebase:firebase-analytics")
     implementation(libs.androidx.camera.view)
@@ -71,7 +72,7 @@ dependencies {
     implementation("androidx.camera:camera-camera2:1.5.0")
     implementation("androidx.camera:camera-lifecycle:1.5.0")
     // the CameraX Extensions library
-    implementation("androidx.camera:camera-view:1.5.0")
+    implementation(libs.androidx.camera.view)
     implementation("androidx.camera:camera-extensions:1.5.0")
 
 }

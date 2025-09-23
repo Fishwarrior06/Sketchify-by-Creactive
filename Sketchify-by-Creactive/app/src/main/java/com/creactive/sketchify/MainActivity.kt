@@ -1,5 +1,6 @@
 package com.creactive.sketchify
 //Screens
+import android.net.Uri
 import com.creactive.sketchify.ui.screens.HomeScreen
 import com.creactive.sketchify.ui.screens.PhotoTypeScreen
 import com.creactive.sketchify.ui.screens.PastSessionsScreen
@@ -29,7 +30,13 @@ import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import com.creactive.sketchify.data.PhotoFrame
+import com.creactive.sketchify.data.frames
+import com.creactive.sketchify.ui.screens.PhotoResultScreen
+import com.creactive.sketchify.ui.screens.savePhotosToGallery
+
 private const val TAG = "MainActivity"
 
 class MainActivity : ComponentActivity() {
@@ -127,10 +134,35 @@ class MainActivity : ComponentActivity() {
                         PastSessionsScreen(navController, windowSizeClass)
                     }
 
-                    composable("PhotoBooth") {
-                        PhotoBooth(lifecycleOwner = this@MainActivity, windowSizeClass)
+                    composable("PhotoBooth") { backStackEntry ->
+                        val selectedFrame = navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.get<PhotoFrame>("selectedFrame") ?: frames.first()
+
+                        PhotoBooth(
+                            navController = navController,
+                            lifecycleOwner = this@MainActivity,
+                            windowSizeClass = windowSizeClass,
+                            selectedFrame = selectedFrame
+                        )
                     }
 
+                    composable("PhotoResult") { backStackEntry ->
+                        // ✅ Obtén desde la entrada anterior (de donde vienes)
+                        val previousEntry = navController.previousBackStackEntry
+                        val photos = previousEntry?.savedStateHandle?.get<ArrayList<Uri>>("photos")?.toList() ?: emptyList()
+                        val frame = previousEntry?.savedStateHandle?.get<PhotoFrame>("frame") ?: frames.first()
+                        Log.d("PhotoResult", "Received photos: ${photos.size}, Frame: ${frame.name}")
+
+                        val context = LocalContext.current
+
+                        PhotoResultScreen(
+                            photos = photos,
+                            frame = frame,
+                            onRetake = { navController.popBackStack() },
+                            onSave = { savePhotosToGallery(context, photos) }
+                        )
+                    }
                 }
             }
         }

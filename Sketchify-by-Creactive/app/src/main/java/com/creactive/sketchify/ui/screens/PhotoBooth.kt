@@ -7,23 +7,24 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
-import coil.compose.rememberAsyncImagePainter
+import androidx.navigation.NavController
 import com.creactive.sketchify.modules.CameraController
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import com.creactive.sketchify.data.PhotoFrame
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -32,17 +33,22 @@ private const val TAG = "PhotoBooth"
 
 @Composable
 fun PhotoBooth(
+    navController: NavController,
     lifecycleOwner: LifecycleOwner,
-    windowSizeClass: WindowSizeClass,
-    onImageCaptured: (Uri) -> Unit = {}
+    windowSizeClass: androidx.compose.material3.windowsizeclass.WindowSizeClass,
+    selectedFrame: PhotoFrame
 ) {
     val context = LocalContext.current
     val previewView = remember { PreviewView(context) }
-
-    // Cámara modular
     val cameraController = remember { CameraController(context, lifecycleOwner, previewView) }
+
     var imageCapture by remember { mutableStateOf<ImageCapture?>(null) }
-    var capturedUri by remember { mutableStateOf<Uri?>(null) }
+    var photos by remember { mutableStateOf<List<Uri>>(emptyList()) }
+
+    var showFlash by remember { mutableStateOf(false) }
+    var showSnackbar by remember { mutableStateOf(false) }
+    var countdown by remember { mutableStateOf<Int?>(null) }
+    var takingPhotos by remember { mutableStateOf(false) }
 
     // Permisos
     var hasPermission by remember {
@@ -51,21 +57,16 @@ fun PhotoBooth(
                     == PackageManager.PERMISSION_GRANTED
         )
     }
-
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { granted -> hasPermission = granted }
     )
+    LaunchedEffect(Unit) { if (!hasPermission) launcher.launch(Manifest.permission.CAMERA) }
 
-    LaunchedEffect(Unit) {
-        if (!hasPermission) launcher.launch(Manifest.permission.CAMERA)
-    }
-
-    // Tamaño del box según window class
     val boxWidth = when (windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> 175.dp
-        WindowWidthSizeClass.Medium -> 175.dp
-        WindowWidthSizeClass.Expanded -> 200.dp
+        androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Compact -> 350.dp
+        androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Medium -> 175.dp
+        androidx.compose.material3.windowsizeclass.WindowWidthSizeClass.Expanded -> 200.dp
         else -> 175.dp
     }
 
@@ -73,38 +74,84 @@ fun PhotoBooth(
         DisposableEffect(Unit) {
             cameraController.startCamera()
             imageCapture = cameraController.imageCapture
-            onDispose { /* opcional: unbind si quieres */ }
+            onDispose { }
+        }
+
+        // lógica de tomar foto
+        fun takePhoto() {
+            val capture = imageCapture ?: return
+            val file = File(
+                context.cacheDir,
+                "photo_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())}.jpg"
+            )
+            val output = ImageCapture.OutputFileOptions.Builder(file).build()
+
+            capture.takePicture(
+                output,
+                ContextCompat.getMainExecutor(context),
+                object : ImageCapture.OnImageSavedCallback {
+                    override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                        val uri = Uri.fromFile(file)
+                        photos = photos + uri
+                        showFlash = true
+                        showSnackbar = true
+
+                        if (photos.size < selectedFrame.slots) {
+                            countdown = 3 // siguiente foto
+                        } else {
+                            takingPhotos = false
+                            countdown = null
+
+                            // Navegar a PhotoResultScreen pasando frame y fotos
+                            // Al terminar de tomar fotos en PhotoBooth
+                            // Dentro de PhotoBooth, cuando terminas de tomar fotos
+                            navController.currentBackStackEntry?.savedStateHandle?.set("photos", ArrayList(photos))
+                            navController.currentBackStackEntry?.savedStateHandle?.set("frame", selectedFrame)
+                            Log.d("PhotoBooth", "Photos saved: ${photos.size}, Frame: ${selectedFrame.name}")
+                            // Luego navega
+                            navController.navigate("PhotoResult")
+                        }
+                    }
+
+                    override fun onError(exception: ImageCaptureException) {
+                        Log.e(TAG, "Photo capture failed: ${exception.message}", exception)
+                        takingPhotos = false
+                        countdown = null
+                    }
+                }
+            )
+        }
+
+        // controlar countdown
+        LaunchedEffect(countdown) {
+            val current = countdown
+            if (current != null && current > 0) {
+                kotlinx.coroutines.delay(1000)
+                countdown = current - 1
+            } else if (current == 0) {
+                countdown = null
+                takePhoto()
+            }
         }
 
         PhotoBoothUI(
             boxWidth = boxWidth,
-            capturedUri = capturedUri,
             previewView = previewView,
             onShutterClick = {
-                val file = File(
-                    context.cacheDir,
-                    "photo_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())}.jpg"
-                )
-                val output = ImageCapture.OutputFileOptions.Builder(file).build()
-                imageCapture?.takePicture(
-                    output,
-                    ContextCompat.getMainExecutor(context),
-                    object : ImageCapture.OnImageSavedCallback {
-                        override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                            val uri = Uri.fromFile(file)
-                            capturedUri = uri
-                            onImageCaptured(uri)
-                        }
-
-                        override fun onError(exception: androidx.camera.core.ImageCaptureException) {
-                            Log.e(TAG, "Photo capture failed: ${exception.message}", exception)
-                        }
-                    }
-                )
-            }
+                if (!takingPhotos) {
+                    photos = emptyList()
+                    takingPhotos = true
+                    countdown = 3 // primera foto
+                }
+            },
+            onSwitchCameraClick = { cameraController.switchCamera() },
+            showFlash = showFlash,
+            onFlashComplete = { showFlash = false },
+            showSnackbar = showSnackbar,
+            onSnackbarShown = { showSnackbar = false },
+            countdown = countdown
         )
     } else {
-        // ❌ Permisos no dados
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Button(onClick = { launcher.launch(Manifest.permission.CAMERA) }) {
                 Text("Dar permiso de cámara")
@@ -113,63 +160,90 @@ fun PhotoBooth(
     }
 }
 
-// ------------------------
-// UI modular separada
-// ------------------------
 @Composable
 fun PhotoBoothUI(
     boxWidth: Dp,
-    capturedUri: Uri? = null,
     previewView: PreviewView? = null,
-    onShutterClick: () -> Unit = {}
+    onShutterClick: () -> Unit = {},
+    onSwitchCameraClick: () -> Unit = {},
+    showFlash: Boolean = false,
+    onFlashComplete: () -> Unit = {},
+    showSnackbar: Boolean = false,
+    onSnackbarShown: () -> Unit = {},
+    countdown: Int? = null
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // 📷 Recuadro de cámara
-        Box(
-            modifier = Modifier
-                .width(boxWidth)
-                .height(boxWidth),
-            contentAlignment = Alignment.BottomCenter
-        ) {
-            previewView?.let { pv ->
-                AndroidView(factory = { pv }, modifier = Modifier.fillMaxSize())
-            } ?: Box(modifier = Modifier.fillMaxSize()) {
-                Text(
-                    "Recuadro de cámara",
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
+    val snackbarHostState = remember { SnackbarHostState() }
 
-            Button(onClick = onShutterClick) {
-                Text("📸")
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // 👀 Preview de la foto tomada
-        capturedUri?.let { uri ->
-            Text("Preview de la foto:")
-            Image(
-                painter = rememberAsyncImagePainter(uri),
-                contentDescription = "Foto tomada",
-                modifier = Modifier
-                    .size(150.dp)
-                    .padding(top = 8.dp)
-            )
+    LaunchedEffect(showSnackbar) {
+        if (showSnackbar) {
+            snackbarHostState.showSnackbar("📸 Foto tomada")
+            onSnackbarShown()
         }
     }
-}
 
-// ------------------------
-// Preview Compose (solo UI, no cámara real)
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true, widthDp = 360, heightDp = 640)
-@Composable
-fun PhotoBoothUIPreview() {
-    PhotoBoothUI(boxWidth = 175.dp)
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(200.dp))
+
+            Box(
+                modifier = Modifier
+                    .width(boxWidth)
+                    .height(boxWidth),
+                contentAlignment = Alignment.Center
+            ) {
+                previewView?.let { pv ->
+                    AndroidView(factory = { pv }, modifier = Modifier.fillMaxSize())
+                } ?: Box(modifier = Modifier.fillMaxSize()) {
+                    Text("Recuadro de cámara", modifier = Modifier.align(Alignment.Center))
+                }
+            }
+
+            Spacer(modifier = Modifier.height(200.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(onClick = onSwitchCameraClick) { Text("🔄") }
+                Button(onClick = onShutterClick) { Text("📸") }
+            }
+        }
+
+        if (showFlash) {
+            LaunchedEffect(Unit) {
+                kotlinx.coroutines.delay(150)
+                onFlashComplete()
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White.copy(alpha = 0.8f))
+            )
+        }
+
+        countdown?.let { value ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = value.toString(),
+                    style = MaterialTheme.typography.displayLarge,
+                    color = Color.White
+                )
+            }
+        }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
+    }
 }

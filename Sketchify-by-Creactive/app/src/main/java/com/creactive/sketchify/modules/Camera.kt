@@ -1,4 +1,3 @@
-// Camera.kt
 package com.creactive.sketchify.modules
 
 import android.content.Context
@@ -14,9 +13,10 @@ private const val TAG = "CameraModule"
 class CameraController(
     private val context: Context,
     private val lifecycleOwner: LifecycleOwner,
-    private val previewView: PreviewView
+    var previewView: PreviewView
 ) {
     var imageCapture: ImageCapture? = null
+    private var cameraSelector: CameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
 
     fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
@@ -28,7 +28,6 @@ class CameraController(
                 }
                 val capture = ImageCapture.Builder().build()
                 imageCapture = capture
-                val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(
@@ -41,5 +40,14 @@ class CameraController(
                 Log.e(TAG, "Use case binding failed", exc)
             }
         }, ContextCompat.getMainExecutor(context))
+    }
+
+    fun switchCamera() {
+        cameraSelector = if (cameraSelector == CameraSelector.DEFAULT_FRONT_CAMERA) {
+            CameraSelector.DEFAULT_BACK_CAMERA
+        } else {
+            CameraSelector.DEFAULT_FRONT_CAMERA
+        }
+        startCamera()
     }
 }
