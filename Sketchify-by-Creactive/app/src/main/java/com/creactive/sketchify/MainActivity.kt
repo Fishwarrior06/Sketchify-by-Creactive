@@ -30,12 +30,10 @@ import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import com.creactive.sketchify.data.PhotoFrame
 import com.creactive.sketchify.data.frames
 import com.creactive.sketchify.ui.screens.PhotoResultScreen
-import com.creactive.sketchify.ui.screens.savePhotosToGallery
 
 private const val TAG = "MainActivity"
 
@@ -54,7 +52,8 @@ class MainActivity : ComponentActivity() {
             // The camera obtained from the provider will be bound to the activity lifecycle.
             val cameraProvider = cameraProviderFuture.get()
             val extensionsManagerFuture =
-                ExtensionsManager.getInstanceAsync(applicationContext,
+                ExtensionsManager.getInstanceAsync(
+                    applicationContext,
                     cameraProvider as CameraProvider
                 )
             extensionsManagerFuture.addListener({
@@ -103,11 +102,10 @@ class MainActivity : ComponentActivity() {
         }, ContextCompat.getMainExecutor(this))
 
         //Navigation Host and stuff
+        //Navigation Host and stuff
         setContent {
             SketchifyTheme {
                 val navController = rememberNavController()
-
-                // 👇 calcular window size una sola vez
                 val windowSizeClass: WindowSizeClass = calculateWindowSizeClass(this)
 
                 NavHost(navController = navController, startDestination = "home") {
@@ -134,6 +132,7 @@ class MainActivity : ComponentActivity() {
                         PastSessionsScreen(navController, windowSizeClass)
                     }
 
+                    // ✅ UN SOLO PhotoBooth (quité el duplicado)
                     composable("PhotoBooth") { backStackEntry ->
                         val selectedFrame = navController.previousBackStackEntry
                             ?.savedStateHandle
@@ -147,20 +146,26 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
+                    // ✅ AGREGUÉ PhotoResult que faltaba
                     composable("PhotoResult") { backStackEntry ->
-                        // ✅ Obtén desde la entrada anterior (de donde vienes)
                         val previousEntry = navController.previousBackStackEntry
-                        val photos = previousEntry?.savedStateHandle?.get<ArrayList<Uri>>("photos")?.toList() ?: emptyList()
-                        val frame = previousEntry?.savedStateHandle?.get<PhotoFrame>("frame") ?: frames.first()
-                        Log.d("PhotoResult", "Received photos: ${photos.size}, Frame: ${frame.name}")
+                        val photos =
+                            previousEntry?.savedStateHandle?.get<ArrayList<Uri>>("photos")?.toList()
+                                ?: emptyList()
+                        val frame = previousEntry?.savedStateHandle?.get<PhotoFrame>("frame")
+                            ?: frames.first()
 
-                        val context = LocalContext.current
+                        Log.d(
+                            "PhotoResult",
+                            "Received photos: ${photos.size}, Frame: ${frame.name}"
+                        )
 
                         PhotoResultScreen(
                             photos = photos,
                             frame = frame,
                             onRetake = { navController.popBackStack() },
-                            onSave = { savePhotosToGallery(context, photos) }
+                            onSave = { },
+                            windowSizeClass
                         )
                     }
                 }

@@ -10,6 +10,7 @@ import androidx.lifecycle.LifecycleOwner
 
 private const val TAG = "CameraModule"
 
+// CameraController.kt
 class CameraController(
     private val context: Context,
     private val lifecycleOwner: LifecycleOwner,
@@ -18,7 +19,7 @@ class CameraController(
     var imageCapture: ImageCapture? = null
     private var cameraSelector: CameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
 
-    fun startCamera() {
+    fun startCamera(onCameraReady: (() -> Unit)? = null) {  // ← Agrega callback
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
         cameraProviderFuture.addListener({
             try {
@@ -27,7 +28,7 @@ class CameraController(
                     surfaceProvider = previewView.surfaceProvider
                 }
                 val capture = ImageCapture.Builder().build()
-                imageCapture = capture
+                imageCapture = capture  // ← Asigna AQUÍ
 
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(
@@ -36,8 +37,12 @@ class CameraController(
                     preview,
                     capture
                 )
+
+                Log.d("CameraController", "🔸 Cámara inicializada exitosamente")
+                onCameraReady?.invoke()  // ← Llama al callback cuando esté listo
+
             } catch (exc: Exception) {
-                Log.e(TAG, "Use case binding failed", exc)
+                Log.e("CameraController", "🔴 Error al inicializar cámara: ${exc.message}", exc)
             }
         }, ContextCompat.getMainExecutor(context))
     }

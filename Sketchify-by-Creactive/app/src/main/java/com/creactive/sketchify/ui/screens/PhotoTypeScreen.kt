@@ -133,15 +133,9 @@ fun PhotoTypeScreen(navController: NavController, modo: String, windowSizeClass:
                 onClick = {
                     val selectedFrame = frames.getOrNull(selectedIndex)
                     if (selectedFrame != null) {
-                        navController.currentBackStackEntry
-                            ?.savedStateHandle
-                            ?.set("selectedFrameId", selectedFrame.id)
-                        navController.currentBackStackEntry
-                            ?.savedStateHandle
-                            ?.set("selectedFrameSlots", selectedFrame.slots)
-                        navController.currentBackStackEntry
-                            ?.savedStateHandle
-                            ?.set("modo", modo)
+                        // ✅ Pasar el objeto completo
+                        navController.currentBackStackEntry?.savedStateHandle?.set("selectedFrame", selectedFrame)
+                        navController.currentBackStackEntry?.savedStateHandle?.set("modo", modo)
 
                         if (modo == "camara") {
                             navController.navigate("PhotoBooth")
