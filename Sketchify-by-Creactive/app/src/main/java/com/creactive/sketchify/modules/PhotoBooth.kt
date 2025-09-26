@@ -132,17 +132,18 @@ class PhotoBoothController(
         takingPhotos = false
         countdown = null
 
-        // Guardar datos y navegar
-        navController.currentBackStackEntry?.savedStateHandle?.set("photos", ArrayList(photos))
-        navController.currentBackStackEntry?.savedStateHandle?.set("frame", selectedFrame)
+        // ✅ CORRECCIÓN: Guardar en la pantalla DESTINO
+        Log.d("PhotoBooth", "🔸 Finalizando sesión con ${photos.size} fotos")
+        Log.d("PhotoBooth", "🔸 Frame: ${selectedFrame.name}")
 
-        Log.d("PhotoBooth", "🔸 Datos guardados: ${photos.size} fotos, Frame: ${selectedFrame.name}")
+        // Primero navegar
         navController.navigate("PhotoResult")
-        try {
-            navController.navigate("PhotoResult")
-            Log.d("PhotoBooth", "🔸 Navegación a PhotoResult EXITOSA")
-        } catch (e: Exception) {
-            Log.e("PhotoBooth", "🔴 ERROR al navegar: ${e.message}")
+
+        // Luego guardar los datos en la pantalla actual (PhotoResult)
+        navController.currentBackStackEntry?.savedStateHandle?.apply {
+            set("photos", ArrayList(photos))
+            set("frame", selectedFrame)
+            Log.d("PhotoBooth", "🔸 Datos guardados en PhotoResult")
         }
     }
 

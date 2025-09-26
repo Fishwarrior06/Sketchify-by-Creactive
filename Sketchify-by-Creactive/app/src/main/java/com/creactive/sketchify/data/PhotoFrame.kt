@@ -29,9 +29,9 @@ val frames = listOf(
         slots = 3,
         drawableRes = R.drawable.frame1,
         photoSlots = listOf(
-            PhotoSlot(x = 0.075f, y = 0.05f, width = 0.85f, height = 0.28f),  // Foto 1 (arriba)
-            PhotoSlot(x = 0.075f, y = 0.36f, width = 0.85f, height = 0.28f),  // Foto 2 (centro)
-            PhotoSlot(x = 0.075f, y = 0.67f, width = 0.85f, height = 0.28f)   // Foto 3 (abajo)
+            PhotoSlot(x = 0.082f, y = 0.022f, width = 0.53f, height = 0.24f),  // Foto 1 (arriba)
+            PhotoSlot(x = 0.082f, y = 0.29f, width = 0.53f, height = 0.24f),  // Foto 2 (centro)
+            PhotoSlot(x = 0.082f, y = 0.56f, width = 0.53f, height = 0.25f)   // Foto 3 (abajo)
         )
     ),
 
@@ -52,7 +52,7 @@ val frames = listOf(
         id = 3,
         name = "Marco simple",
         slots = 1,
-        drawableRes = R.drawable.frame2,
+        drawableRes = R.drawable.frame3,
         photoSlots = listOf(
             PhotoSlot(x = 0.1f, y = 0.1f, width = 0.8f, height = 0.8f)     // Foto centrada
         )
@@ -63,7 +63,7 @@ val frames = listOf(
         id = 4,
         name = "Marco cuadrado",
         slots = 4,
-        drawableRes = R.drawable.frame1,
+        drawableRes = R.drawable.frame4,
         photoSlots = listOf(
             PhotoSlot(x = 0.05f, y = 0.05f, width = 0.4f, height = 0.4f),  // Arriba izquierda
             PhotoSlot(x = 0.55f, y = 0.05f, width = 0.4f, height = 0.4f),  // Arriba derecha

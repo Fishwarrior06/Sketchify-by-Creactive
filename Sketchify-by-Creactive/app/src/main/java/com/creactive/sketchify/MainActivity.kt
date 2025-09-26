@@ -1,14 +1,7 @@
 package com.creactive.sketchify
+
 //Screens
 import android.net.Uri
-import com.creactive.sketchify.ui.screens.HomeScreen
-import com.creactive.sketchify.ui.screens.PhotoTypeScreen
-import com.creactive.sketchify.ui.screens.PastSessionsScreen
-import com.creactive.sketchify.ui.screens.PhotoBooth
-
-//Theme
-import com.creactive.sketchify.ui.theme.SketchifyTheme
-
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -18,30 +11,41 @@ import androidx.camera.core.CameraProvider
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
+import androidx.camera.extensions.ExtensionMode
+import androidx.camera.extensions.ExtensionsManager
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import androidx.camera.extensions.ExtensionMode
-import androidx.camera.extensions.ExtensionsManager
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.view.PreviewView
-import androidx.core.content.ContextCompat
 import com.creactive.sketchify.data.PhotoFrame
 import com.creactive.sketchify.data.frames
+import com.creactive.sketchify.ui.screens.HomeScreen
+import com.creactive.sketchify.ui.screens.PastSessionsScreen
+import com.creactive.sketchify.ui.screens.PhotoBooth
 import com.creactive.sketchify.ui.screens.PhotoResultScreen
+import com.creactive.sketchify.ui.screens.PhotoTypeScreen
+import com.creactive.sketchify.ui.theme.SketchifyTheme
 
 private const val TAG = "MainActivity"
 
 class MainActivity : ComponentActivity() {
+
+    // ✅ YA NO NECESITAMOS: PhotoResultController aquí (se crea en PhotoResultScreen)
+    // ✅ YA NO NECESITAMOS: mediaProjectionLauncher
+
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // ✅ YA NO NECESITAMOS: photoResultController = PhotoResultController(this)
 
         //Camera Stuff
         val lifecycleOwner = this
@@ -102,7 +106,6 @@ class MainActivity : ComponentActivity() {
         }, ContextCompat.getMainExecutor(this))
 
         //Navigation Host and stuff
-        //Navigation Host and stuff
         setContent {
             SketchifyTheme {
                 val navController = rememberNavController()
@@ -132,7 +135,6 @@ class MainActivity : ComponentActivity() {
                         PastSessionsScreen(navController, windowSizeClass)
                     }
 
-                    // ✅ UN SOLO PhotoBooth (quité el duplicado)
                     composable("PhotoBooth") { backStackEntry ->
                         val selectedFrame = navController.previousBackStackEntry
                             ?.savedStateHandle
@@ -146,26 +148,24 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    // ✅ AGREGUÉ PhotoResult que faltaba
+                    // ✅ SIMPLIFICADO: PhotoResult sin MediaProjection
+                    // En la navegación, asegúrate de pasar las fotos como parámetro nuevo cada vez
                     composable("PhotoResult") { backStackEntry ->
-                        val previousEntry = navController.previousBackStackEntry
-                        val photos =
-                            previousEntry?.savedStateHandle?.get<ArrayList<Uri>>("photos")?.toList()
-                                ?: emptyList()
-                        val frame = previousEntry?.savedStateHandle?.get<PhotoFrame>("frame")
-                            ?: frames.first()
+                        // ✅ CORRECCIÓN: Leer desde la misma pantalla
+                        val photos = backStackEntry.savedStateHandle.get<ArrayList<Uri>>("photos")?.toList() ?: emptyList()
+                        val frame = backStackEntry.savedStateHandle.get<PhotoFrame>("frame") ?: frames.first()
 
-                        Log.d(
-                            "PhotoResult",
-                            "Received photos: ${photos.size}, Frame: ${frame.name}"
-                        )
+                        Log.d("MainActivity", "PhotoResult recibió ${photos.size} fotos")
+                        photos.forEachIndexed { index, uri ->
+                            Log.d("MainActivity", "Foto $index: $uri")
+                        }
 
                         PhotoResultScreen(
                             photos = photos,
                             frame = frame,
                             onRetake = { navController.popBackStack() },
                             onSave = { },
-                            windowSizeClass
+                            windowSizeClass = windowSizeClass
                         )
                     }
                 }

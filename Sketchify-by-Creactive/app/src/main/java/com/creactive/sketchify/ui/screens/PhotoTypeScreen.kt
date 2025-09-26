@@ -128,7 +128,6 @@ fun PhotoTypeScreen(navController: NavController, modo: String, windowSizeClass:
             }
 
             Spacer(modifier = Modifier.height(spacing))
-
             Button(
                 onClick = {
                     val selectedFrame = frames.getOrNull(selectedIndex)

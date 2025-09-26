@@ -15,6 +15,9 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import com.creactive.sketchify.R
 
 @Composable
 fun HomeScreen(navController: NavController, windowSizeClass: WindowSizeClass) {
@@ -24,7 +27,7 @@ fun HomeScreen(navController: NavController, windowSizeClass: WindowSizeClass) {
 
     // Ajustes dinámicos según pantalla
     val imageHeight = when (windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> 585.dp
+        WindowWidthSizeClass.Compact -> 450.dp
         WindowWidthSizeClass.Medium -> 685.dp
         WindowWidthSizeClass.Expanded -> 590.dp
         else -> 585.dp
@@ -46,26 +49,27 @@ fun HomeScreen(navController: NavController, windowSizeClass: WindowSizeClass) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // 🔝 Título
-            Text(
-                text = if (hasPhoto) "Foto cargada" else "Placeholder",
-                style = MaterialTheme.typography.headlineMedium
+            Image(
+                painter = painterResource(
+                    id = R.drawable.homescreentext
+                ),
+                contentDescription = if (hasPhoto) "Foto cargada" else "Placeholder",
+                modifier = Modifier.size(250.dp) // ajusta tamaño a lo que quieras
             )
-
-            Spacer(modifier = Modifier.height(16.dp))
 
             // 📦 Área de imagen
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(imageHeight)
-                    .background(Color.LightGray),
+                    .background(Color.Transparent),
                 contentAlignment = Alignment.Center
             ) {
-                if (currentImage != null) {
-                    Text("Aquí mostrarías la foto: $currentImage")
-                } else {
-                    Text("Aquí irá la imagen")
-                }
+                Image(
+                    painter = painterResource(id = R.drawable.homescreenlogo),
+                    contentDescription = "Imagen de la box",
+                    modifier = Modifier.fillMaxSize()
+                )
             }
 
             Spacer(modifier = Modifier.weight(1f)) // empuja botones abajo

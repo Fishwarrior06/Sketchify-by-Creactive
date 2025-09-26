@@ -8,8 +8,6 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 
-private const val TAG = "CameraModule"
-
 // CameraController.kt
 class CameraController(
     private val context: Context,
