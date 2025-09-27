@@ -18,6 +18,11 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import com.creactive.sketchify.R
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.layout.ContentScale
 
 @Composable
 fun HomeScreen(navController: NavController, windowSizeClass: WindowSizeClass) {
@@ -27,7 +32,7 @@ fun HomeScreen(navController: NavController, windowSizeClass: WindowSizeClass) {
 
     // Ajustes dinámicos según pantalla
     val imageHeight = when (windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> 450.dp
+        WindowWidthSizeClass.Compact -> 500.dp
         WindowWidthSizeClass.Medium -> 685.dp
         WindowWidthSizeClass.Expanded -> 590.dp
         else -> 585.dp
@@ -40,75 +45,138 @@ fun HomeScreen(navController: NavController, windowSizeClass: WindowSizeClass) {
         else -> 12.dp
     }
 
+    val btnHeight = when (windowSizeClass.widthSizeClass) {
+        WindowWidthSizeClass.Compact -> 60.dp
+        WindowWidthSizeClass.Medium -> 90.dp
+        WindowWidthSizeClass.Expanded -> 120.dp
+        else -> 60.dp
+    }
+
     Scaffold { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 🔝 Título
+            // 🖼️ IMAGEN DE FONDO
             Image(
-                painter = painterResource(
-                    id = R.drawable.homescreentext
-                ),
-                contentDescription = if (hasPhoto) "Foto cargada" else "Placeholder",
-                modifier = Modifier.size(250.dp) // ajusta tamaño a lo que quieras
+                painter = painterResource(id = R.drawable.background),
+                contentDescription = "Background",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
             )
 
-            // 📦 Área de imagen
-            Box(
+            // 📱 CONTENIDO ENCIMA
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(imageHeight)
-                    .background(Color.Transparent),
-                contentAlignment = Alignment.Center
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.homescreenlogo),
-                    contentDescription = "Imagen de la box",
-                    modifier = Modifier.fillMaxSize()
+                    painter = painterResource(id = R.drawable.homescreentext),
+                    contentDescription = "Texto homescreen",
+                    modifier = Modifier.fillMaxWidth()
+                        .height(150.dp)
                 )
-            }
 
-            Spacer(modifier = Modifier.weight(1f)) // empuja botones abajo
-
-            // 🔘 Bloque de botones
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                // 📦 Área de imagen
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(imageHeight)
+                        .background(Color.Transparent),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Button(
-                        onClick = {
-                            modo = "galeria"
-                            navController.navigate("PhotoType?modo=galeria")
-                        },
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(end = buttonSpacing)
-                    ) {
-                        Text("Subir foto")
-                    }
-
-                    Button(
-                        onClick = {
-                            modo = "camara"
-                            navController.navigate("PhotoType?modo=camara")
-                        },
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(start = buttonSpacing)
-                    ) {
-                        Text("Tomar foto")
-                    }
+                    Image(
+                        painter = painterResource(id = R.drawable.homescreenlogo),
+                        contentDescription = "Imagen de la box",
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
 
-                Spacer(modifier = Modifier.height(buttonSpacing))
+                Spacer(modifier = Modifier.weight(1f)) // empuja botones abajo
 
-                Button(onClick = { navController.navigate("PastSessions") }) {
-                    Text("Sesiones pasadas")
+                val interactionSource1 = remember { MutableInteractionSource() }
+                val isPressed1 by interactionSource1.collectIsPressedAsState()
+
+                val interactionSource2 = remember { MutableInteractionSource() }
+                val isPressed2 by interactionSource2.collectIsPressedAsState()
+
+                // 🔘 Bloque de botones
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Button(
+                            onClick = {
+                                modo = "galeria"
+                                navController.navigate("PhotoType?modo=galeria")
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = buttonSpacing)
+                                .scale(if (isPressed1) 0.95f else 1f)
+                                .alpha(if (isPressed1) 0.8f else 1f),
+                            interactionSource = interactionSource1,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent,
+                                contentColor = Color.Transparent
+                            ),
+                            contentPadding = PaddingValues(0.dp),
+                            border = null,
+                            elevation = ButtonDefaults.buttonElevation(
+                                defaultElevation = 0.dp,
+                                pressedElevation = 0.dp
+                            )
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.upload_button),
+                                contentDescription = "Subir desde galería",
+                                modifier = Modifier.fillMaxWidth()
+                                    .height(btnHeight),
+                                contentScale = ContentScale.FillBounds
+                            )
+                        }
+
+                        Button(
+                            onClick = {
+                                modo = "camara"
+                                navController.navigate("PhotoType?modo=camara")
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = buttonSpacing)
+                                .scale(if (isPressed2) 0.95f else 1f)
+                                .alpha(if (isPressed2) 0.8f else 1f),
+                            interactionSource = interactionSource2,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent,
+                                contentColor = Color.Transparent
+                            ),
+                            contentPadding = PaddingValues(0.dp),
+                            border = null,
+                            elevation = ButtonDefaults.buttonElevation(
+                                defaultElevation = 0.dp,
+                                pressedElevation = 0.dp
+                            )
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.take_button),
+                                contentDescription = "Tomar foto con cámara",
+                                modifier = Modifier.fillMaxWidth()
+                                    .height(btnHeight),
+                                contentScale = ContentScale.FillBounds
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(buttonSpacing))
+
+                    Button(onClick = { navController.navigate("PastSessions") }) {
+                        Text("Sesiones pasadas")
+                    }
                 }
             }
         }

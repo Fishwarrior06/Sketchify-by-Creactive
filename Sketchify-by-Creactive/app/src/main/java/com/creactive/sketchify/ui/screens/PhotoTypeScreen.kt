@@ -3,21 +3,23 @@ package com.creactive.sketchify.ui.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -28,14 +30,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.creactive.sketchify.R
+import com.creactive.sketchify.data.PhotoFrame
 import com.creactive.sketchify.data.frames
 
 @Composable
@@ -50,101 +57,332 @@ fun PhotoTypeScreen(navController: NavController, modo: String, windowSizeClass:
     }
 
     val boxHeight = when (windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> 315.dp
+        WindowWidthSizeClass.Compact -> 310.dp
         WindowWidthSizeClass.Medium -> 310.dp
         WindowWidthSizeClass.Expanded -> 350.dp
         else -> 310.dp
     }
 
+    val btnHeight = when (windowSizeClass.widthSizeClass) {
+        WindowWidthSizeClass.Compact -> 50.dp
+        WindowWidthSizeClass.Medium -> 80.dp
+        WindowWidthSizeClass.Expanded -> 110.dp
+        else -> 50.dp
+    }
+
+    val btnWidth = when (windowSizeClass.widthSizeClass) {
+        WindowWidthSizeClass.Compact -> 60.dp
+        WindowWidthSizeClass.Medium -> 90.dp
+        WindowWidthSizeClass.Expanded -> 120.dp
+        else -> 60.dp
+    }
+
+    val framebtnHeight = when (windowSizeClass.widthSizeClass) {
+        WindowWidthSizeClass.Compact -> 65.dp
+        WindowWidthSizeClass.Medium -> 130.dp
+        WindowWidthSizeClass.Expanded -> 170.dp
+        else -> 100.dp
+    }
+
+    val framebtnWidth = when (windowSizeClass.widthSizeClass) {
+        WindowWidthSizeClass.Compact -> 250.dp
+        WindowWidthSizeClass.Medium -> 280.dp
+        WindowWidthSizeClass.Expanded -> 320.dp
+        else -> 250.dp
+    }
+
     val spacing = when (windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> 12.dp
-        WindowWidthSizeClass.Medium -> 16.dp
-        WindowWidthSizeClass.Expanded -> 20.dp
-        else -> 16.dp
+        WindowWidthSizeClass.Compact -> 8.dp
+        WindowWidthSizeClass.Medium -> 14.dp
+        WindowWidthSizeClass.Expanded -> 16.dp
+        else -> 8.dp
+    }
+
+    val frameHeight = when (windowSizeClass.widthSizeClass) {
+        WindowWidthSizeClass.Compact -> 225.dp
+        WindowWidthSizeClass.Medium -> 130.dp
+        WindowWidthSizeClass.Expanded -> 170.dp
+        else -> 100.dp
     }
 
     Scaffold { padding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp)
         ) {
-            Button(
-                onClick = { navController.popBackStack() },
-                modifier = Modifier.align(Alignment.Start)
-            ) { Text("Regresar") }
-
-            Spacer(modifier = Modifier.height(spacing))
+            // 🖼️ IMAGEN DE FONDO
+            Image(
+                painter = painterResource(id = R.drawable.background),
+                contentDescription = "Background",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
 
             Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(spacing),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
             ) {
-                val rows = 2
-                val cols = 2
-                for (row in 0 until rows) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(spacing)) {
-                        for (col in 0 until cols) {
-                            val index = row * cols + col
-                            val frame = frames.getOrNull(index)
+                val interactionSource1 = remember { MutableInteractionSource() }
+                val isPressed1 by interactionSource1.collectIsPressedAsState()
 
-                            Box(
-                                modifier = Modifier
-                                    .width(boxWidth)
-                                    .height(boxHeight)
-                                    .background(
-                                        if (selectedIndex == index) Color.Green else Color.LightGray,
-                                        shape = RoundedCornerShape(8.dp)
+                Button(
+                    onClick = {
+                        navController.popBackStack()
+                    },
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .scale(if (isPressed1) 0.95f else 1f)
+                        .alpha(if (isPressed1) 0.8f else 1f),
+                    interactionSource = interactionSource1,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = Color.Transparent
+                    ),
+                    contentPadding = PaddingValues(0.dp),
+                    border = null,
+                    elevation = ButtonDefaults.buttonElevation(
+                        defaultElevation = 0.dp,
+                        pressedElevation = 0.dp
+                    )
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.home_button),
+                        contentDescription = "Home_button",
+                        modifier = Modifier
+                            .width(btnWidth)
+                            .height(btnHeight)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(spacing))
+
+                // 🎯 BOXES INDIVIDUALES CON NAVEGACIÓN
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(spacing),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(spacing),
+                        modifier = Modifier.width(375.dp)
+                            .height(310.dp),
+                    ) {
+                        // BOX 1
+                        FrameBox(
+                            frame = frames.getOrNull(0),
+                            isSelected = selectedIndex == 0,
+                            boxWidth = boxWidth,
+                            boxHeight = boxHeight,
+                            frameHeight = frameHeight,
+                            onBoxClick = {
+                                selectedIndex = 0
+                                frames.getOrNull(0)?.let { selectedFrame ->
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        "selectedFrame",
+                                        selectedFrame
                                     )
-                                    .clickable { selectedIndex = index },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center,
-                                    modifier = Modifier.padding(8.dp)
-                                ) {
-                                    // Imagen dinámica según cada frame
-                                    frame?.drawableRes?.let { res ->
-                                        Image(
-                                            painter = painterResource(id = frame.drawableRes),
-                                            contentDescription = frame.name,
-                                            modifier = Modifier
-                                                .size(250.dp)
-                                                .padding(bottom = 8.dp),
-                                            contentScale = ContentScale.Fit
-                                        )
-                                    }
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        "modo",
+                                        modo
+                                    )
 
-                                    // Texto del frame
-                                    Text(frame?.name ?: "Box ${index + 1}")
+                                    if (modo == "camara") {
+                                        navController.navigate("PhotoBooth")
+                                    } else {
+                                        navController.navigate("OtroModoScreen")
+                                    }
                                 }
                             }
-                        }
+                        )
+
+                        // BOX 2
+                        FrameBox(
+                            frame = frames.getOrNull(1),
+                            isSelected = selectedIndex == 1,
+                            boxWidth = boxWidth,
+                            boxHeight = boxHeight,
+                            onBoxClick = {
+                                selectedIndex = 1
+                                frames.getOrNull(1)?.let { selectedFrame ->
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        "selectedFrame",
+                                        selectedFrame
+                                    )
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        "modo",
+                                        modo
+                                    )
+
+                                    if (modo == "camara") {
+                                        navController.navigate("PhotoBooth")
+                                    } else {
+                                        navController.navigate("OtroModoScreen")
+                                    }
+                                }
+                            },
+                            frameHeight = frameHeight
+                        )
+                    }
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(spacing),
+                        modifier = Modifier.width(375.dp)
+                            .height(310.dp),) {
+                        // BOX 3
+                        FrameBox(
+                            frame = frames.getOrNull(2),
+                            isSelected = selectedIndex == 2,
+                            boxWidth = boxWidth,
+                            boxHeight = boxHeight,
+                            onBoxClick = {
+                                selectedIndex = 2
+                                frames.getOrNull(2)?.let { selectedFrame ->
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        "selectedFrame",
+                                        selectedFrame
+                                    )
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        "modo",
+                                        modo
+                                    )
+
+                                    if (modo == "camara") {
+                                        navController.navigate("PhotoBooth")
+                                    } else {
+                                        navController.navigate("OtroModoScreen")
+                                    }
+                                }
+                            },
+                            frameHeight = frameHeight
+                        )
+
+                        // BOX 4
+                        FrameBox(
+                            frame = frames.getOrNull(3),
+                            isSelected = selectedIndex == 3,
+                            boxWidth = boxWidth,
+                            boxHeight = boxHeight,
+                            onBoxClick = {
+                                selectedIndex = 3
+                                frames.getOrNull(3)?.let { selectedFrame ->
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        "selectedFrame",
+                                        selectedFrame
+                                    )
+                                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                                        "modo",
+                                        modo
+                                    )
+
+                                    if (modo == "camara") {
+                                        navController.navigate("PhotoBooth")
+                                    } else {
+                                        navController.navigate("OtroModoScreen")
+                                    }
+                                }
+                            },
+                            frameHeight = frameHeight
+                        )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(spacing))
+
+                // 🖼️ SOLO LA IMAGEN DEL BOTÓN (SIN FUNCIONALIDAD)
+                Image(
+                    painter = painterResource(id = R.drawable.frame_button),
+                    contentDescription = "Frame_button",
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .width(framebtnWidth)
+                        .height(framebtnHeight)
+                )
             }
+        }
+    }
+}
 
-            Spacer(modifier = Modifier.height(spacing))
-            Button(
-                onClick = {
-                    val selectedFrame = frames.getOrNull(selectedIndex)
-                    if (selectedFrame != null) {
-                        // ✅ Pasar el objeto completo
-                        navController.currentBackStackEntry?.savedStateHandle?.set("selectedFrame", selectedFrame)
-                        navController.currentBackStackEntry?.savedStateHandle?.set("modo", modo)
+@Composable
+fun FrameBox(
+    frame: PhotoFrame?, // ✅ Tipo específico en lugar de Any?
+    isSelected: Boolean,
+    boxWidth: Dp,
+    boxHeight: Dp,
+    onBoxClick: () -> Unit,
+    frameHeight: Dp?
+){
+    FrameBox(frame,
+    isSelected,
+    boxWidth,
+    boxHeight,
+    onBoxClick,
+    frameHeight)
+}
 
-                        if (modo == "camara") {
-                            navController.navigate("PhotoBooth")
-                        } else {
-                            navController.navigate("OtroModoScreen")
-                        }
-                    }
-                },
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            ) { Text("Seleccionar marco") }
+// 📦 COMPONENTE INDIVIDUAL PARA CADA BOX (CORREGIDO)
+@Composable
+fun FrameBox(
+    frame: PhotoFrame?, // ✅ Tipo específico en lugar de Any?
+    isSelected: Boolean,
+    boxWidth: Dp,
+    boxHeight: Dp,
+    onBoxClick: () -> Unit,
+    frameHeight: Dp
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    Box(
+        modifier = Modifier
+            .width(boxWidth)
+            .height(boxHeight)
+            .padding(4.dp)
+            .scale(if (isPressed) 0.95f else 1f)
+            .alpha(if (isPressed) 0.8f else 1f)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null
+            ) { onBoxClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        // 🖼️ Imagen como fondo
+        Image(
+            painter = painterResource(id = R.drawable.frameboxbg),
+            contentDescription = "FrameBoxBG",
+            modifier = Modifier.width(500.dp)
+                .height(400.dp),
+            contentScale = ContentScale.Fit
+        )
+
+        // ✅ Indicador de selección
+        if (isSelected) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Color.White.copy(alpha = 0.2f),
+                        shape = RoundedCornerShape(4.dp)
+                    )
+            )
+        }
+
+        // 📷 Contenido del frame (CORREGIDO)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            frame?.let { frameData -> // ✅ Safe call
+                Image(
+                    painter = painterResource(id = frameData.drawableRes), // ✅ Acceso correcto
+                    contentDescription = frameData.name, // ✅ Acceso correcto
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .height(frameHeight),
+                    contentScale = ContentScale.Fit
+                )
+            }
         }
     }
 }
