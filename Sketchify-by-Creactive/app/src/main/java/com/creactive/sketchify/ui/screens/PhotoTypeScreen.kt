@@ -92,7 +92,7 @@ fun PhotoTypeScreen(navController: NavController, modo: String, windowSizeClass:
     }
 
     val spacing = when (windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> 8.dp
+        WindowWidthSizeClass.Compact -> 10.dp
         WindowWidthSizeClass.Medium -> 14.dp
         WindowWidthSizeClass.Expanded -> 16.dp
         else -> 8.dp
@@ -100,9 +100,23 @@ fun PhotoTypeScreen(navController: NavController, modo: String, windowSizeClass:
 
     val frameHeight = when (windowSizeClass.widthSizeClass) {
         WindowWidthSizeClass.Compact -> 225.dp
-        WindowWidthSizeClass.Medium -> 130.dp
-        WindowWidthSizeClass.Expanded -> 170.dp
-        else -> 100.dp
+        WindowWidthSizeClass.Medium -> 285.dp
+        WindowWidthSizeClass.Expanded -> 385.dp
+        else -> 225.dp
+    }
+
+    val imgWidth = when (windowSizeClass.widthSizeClass) {
+        WindowWidthSizeClass.Compact -> 500.dp
+        WindowWidthSizeClass.Medium -> 700.dp
+        WindowWidthSizeClass.Expanded -> 900.dp
+        else -> 500.dp
+    }
+
+    val imgHeight = when (windowSizeClass.widthSizeClass) {
+        WindowWidthSizeClass.Compact -> 400.dp
+        WindowWidthSizeClass.Medium -> 600.dp
+        WindowWidthSizeClass.Expanded -> 800.dp
+        else -> 400.dp
     }
 
     Scaffold { padding ->
@@ -176,6 +190,8 @@ fun PhotoTypeScreen(navController: NavController, modo: String, windowSizeClass:
                             boxWidth = boxWidth,
                             boxHeight = boxHeight,
                             frameHeight = frameHeight,
+                            imgWidth = imgWidth,
+                            imgHeight = imgHeight,
                             onBoxClick = {
                                 selectedIndex = 0
                                 frames.getOrNull(0)?.let { selectedFrame ->
@@ -203,6 +219,9 @@ fun PhotoTypeScreen(navController: NavController, modo: String, windowSizeClass:
                             isSelected = selectedIndex == 1,
                             boxWidth = boxWidth,
                             boxHeight = boxHeight,
+                            frameHeight = frameHeight,
+                            imgWidth = imgWidth,
+                            imgHeight = imgHeight,
                             onBoxClick = {
                                 selectedIndex = 1
                                 frames.getOrNull(1)?.let { selectedFrame ->
@@ -221,21 +240,24 @@ fun PhotoTypeScreen(navController: NavController, modo: String, windowSizeClass:
                                         navController.navigate("OtroModoScreen")
                                     }
                                 }
-                            },
-                            frameHeight = frameHeight
+                            }
                         )
                     }
 
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(spacing),
                         modifier = Modifier.width(375.dp)
-                            .height(310.dp),) {
+                            .height(310.dp),
+                        ) {
                         // BOX 3
                         FrameBox(
                             frame = frames.getOrNull(2),
                             isSelected = selectedIndex == 2,
                             boxWidth = boxWidth,
                             boxHeight = boxHeight,
+                            frameHeight = frameHeight,
+                            imgWidth = imgWidth,
+                            imgHeight = imgHeight,
                             onBoxClick = {
                                 selectedIndex = 2
                                 frames.getOrNull(2)?.let { selectedFrame ->
@@ -254,8 +276,7 @@ fun PhotoTypeScreen(navController: NavController, modo: String, windowSizeClass:
                                         navController.navigate("OtroModoScreen")
                                     }
                                 }
-                            },
-                            frameHeight = frameHeight
+                            }
                         )
 
                         // BOX 4
@@ -264,6 +285,9 @@ fun PhotoTypeScreen(navController: NavController, modo: String, windowSizeClass:
                             isSelected = selectedIndex == 3,
                             boxWidth = boxWidth,
                             boxHeight = boxHeight,
+                            frameHeight = frameHeight,
+                            imgWidth = imgWidth,
+                            imgHeight = imgHeight,
                             onBoxClick = {
                                 selectedIndex = 3
                                 frames.getOrNull(3)?.let { selectedFrame ->
@@ -282,8 +306,7 @@ fun PhotoTypeScreen(navController: NavController, modo: String, windowSizeClass:
                                         navController.navigate("OtroModoScreen")
                                     }
                                 }
-                            },
-                            frameHeight = frameHeight
+                            }
                         )
                     }
                 }
@@ -311,14 +334,19 @@ fun FrameBox(
     boxWidth: Dp,
     boxHeight: Dp,
     onBoxClick: () -> Unit,
-    frameHeight: Dp?
+    frameHeight: Dp?,
+    imgWidth: Dp?,
+    imgHeight: Dp?
 ){
     FrameBox(frame,
     isSelected,
     boxWidth,
     boxHeight,
     onBoxClick,
-    frameHeight)
+    frameHeight,
+        imgWidth,
+        imgHeight
+    )
 }
 
 // 📦 COMPONENTE INDIVIDUAL PARA CADA BOX (CORREGIDO)
@@ -329,7 +357,9 @@ fun FrameBox(
     boxWidth: Dp,
     boxHeight: Dp,
     onBoxClick: () -> Unit,
-    frameHeight: Dp
+    frameHeight: Dp,
+    imgWidth: Dp,
+    imgHeight: Dp
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -351,9 +381,10 @@ fun FrameBox(
         Image(
             painter = painterResource(id = R.drawable.frameboxbg),
             contentDescription = "FrameBoxBG",
-            modifier = Modifier.width(500.dp)
-                .height(400.dp),
-            contentScale = ContentScale.Fit
+            modifier = Modifier
+                .width(imgWidth)
+                .height(imgHeight),
+            contentScale = ContentScale.FillBounds
         )
 
         // ✅ Indicador de selección
