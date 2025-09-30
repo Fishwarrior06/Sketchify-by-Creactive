@@ -29,7 +29,7 @@ val frames = listOf(
         slots = 3,
         drawableRes = R.drawable.frame1,
         photoSlots = listOf(
-            PhotoSlot(x = 0.082f, y = 0.022f, width = 0.53f, height = 0.24f),  // Foto 1 (arriba)
+            PhotoSlot(x = 0.082f, y = 0.022f, width = 0.50f, height = 0.10f),  // Foto 1 (arriba)
             PhotoSlot(x = 0.082f, y = 0.29f, width = 0.53f, height = 0.24f),  // Foto 2 (centro)
             PhotoSlot(x = 0.082f, y = 0.56f, width = 0.53f, height = 0.25f)   // Foto 3 (abajo)
         )

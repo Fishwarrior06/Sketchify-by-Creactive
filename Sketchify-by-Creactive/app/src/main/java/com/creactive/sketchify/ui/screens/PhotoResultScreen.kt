@@ -3,10 +3,13 @@ package com.creactive.sketchify.ui.screens
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,9 +26,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asAndroidBitmap // ✅ IMPORT NECESARIO
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.creactive.sketchify.R
 import com.creactive.sketchify.data.PhotoFrame
 import com.creactive.sketchify.modules.PhotoResultController
 import dev.shreyaspatil.capturable.controller.CaptureController
@@ -73,24 +79,37 @@ fun PhotoResultScreen(
                 onSave = onSave
             )
         }
-    ) { padding ->
-        Column(
+    ) { innerPadding ->
+        Box(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxHeight()
+                .padding(innerPadding)
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
-
-            PhotoFrameOverlay(
-                photos = photos,
-                frame = frame,
-                containerWidth = containerWidth,
-                containerHeight = containerHeight,
-                captureController = captureController
+            // 🖼️ IMAGEN DE FONDO
+            Image(
+                painter = painterResource(id = R.drawable.background),
+                contentDescription = "Background",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            // CONTENIDO PRINCIPAL
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                PhotoFrameOverlay(
+                    photos = photos,
+                    frame = frame,
+                    containerWidth = containerWidth,
+                    containerHeight = containerHeight,
+                    captureController = captureController
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
     }
 }
