@@ -1,165 +1,83 @@
 package com.creactive.sketchify
 
-//Screens
+// Imports necesarios para las notificaciones
+
+// Tus imports existentes
+import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.camera.core.CameraProvider
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.Preview
-import androidx.camera.extensions.ExtensionMode
-import androidx.camera.extensions.ExtensionsManager
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.view.PreviewView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
-import androidx.core.content.ContextCompat
-import androidx.navigation.NavType
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.creactive.sketchify.data.PhotoFrame
 import com.creactive.sketchify.data.frames
+import com.creactive.sketchify.modules.NotificationReceiver
 import com.creactive.sketchify.ui.screens.HomeScreen
-import com.creactive.sketchify.ui.screens.PastSessionsScreen
-import com.creactive.sketchify.ui.screens.PhotoBooth
 import com.creactive.sketchify.ui.screens.PhotoResultScreen
-import com.creactive.sketchify.ui.screens.PhotoTypeScreen
 import com.creactive.sketchify.ui.theme.SketchifyTheme
 
-private const val TAG = "MainActivity"
-
 class MainActivity : ComponentActivity() {
-
-    // ✅ YA NO NECESITAMOS: PhotoResultController aquí (se crea en PhotoResultScreen)
-    // ✅ YA NO NECESITAMOS: mediaProjectionLauncher
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        createNotificationChannel()
 
-        // ✅ YA NO NECESITAMOS: photoResultController = PhotoResultController(this)
-
-        //Camera Stuff
-        val lifecycleOwner = this
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(applicationContext)
-        cameraProviderFuture.addListener({
-            // Obtain an instance of a process camera provider
-            // The camera provider provides access to the set of cameras associated with the device.
-            // The camera obtained from the provider will be bound to the activity lifecycle.
-            val cameraProvider = cameraProviderFuture.get()
-            val extensionsManagerFuture =
-                ExtensionsManager.getInstanceAsync(
-                    applicationContext,
-                    cameraProvider as CameraProvider
-                )
-            extensionsManagerFuture.addListener({
-                // Obtain an instance of the extensions manager
-                // The extensions manager enables a camera to use extension capabilities available on
-                // the device.
-                val extensionsManager = extensionsManagerFuture.get()
-                // Select the camera
-                val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-                // Query if extension is available.
-                // Not all devices will support extensions or might only support a subset of
-                // extensions.
-                if (extensionsManager.isExtensionAvailable(cameraSelector, ExtensionMode.NIGHT)) {
-                    // Unbind all use cases before enabling different extension modes.
-                    try {
-                        cameraProvider.unbindAll()
-                        // Retrieve a night extension enabled camera selector
-                        val nightCameraSelector =
-                            extensionsManager.getExtensionEnabledCameraSelector(
-                                cameraSelector,
-                                ExtensionMode.NIGHT
-                            )
-                        // Bind image capture and preview use cases with the extension enabled camera
-                        // selector.
-                        val imageCapture = ImageCapture.Builder().build()
-                        val preview = Preview.Builder().build()
-                        // Connect the preview to receive the surface the camera outputs the frames
-                        // to. This will allow displaying the camera frames in either a TextureView
-                        // or SurfaceView. The SurfaceProvider can be obtained from the PreviewView.
-                        val previewView = PreviewView(this)
-                        preview.surfaceProvider = previewView.surfaceProvider
-                        // Returns an instance of the camera bound to the lifecycle
-                        // Use this camera object to control various operations with the camera
-                        // Example: flash, zoom, focus metering etc.
-                        cameraProvider.bindToLifecycle(
-                            lifecycleOwner,
-                            nightCameraSelector,
-                            imageCapture,
-                            preview
-                        )
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Use case binding failed", e)
-                    }
-                }
-            }, ContextCompat.getMainExecutor(this))
-        }, ContextCompat.getMainExecutor(this))
-
-        //Navigation Host and stuff
         setContent {
             SketchifyTheme {
+                // ---> PASO 2: Preparar el lanzador de permisos.
+                // Esto crea el "contrato" para pedir un permiso y manejar el resultado.
+                val permissionLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestPermission(),
+                    onResult = { isGranted ->
+                        if (isGranted) {
+                            // Si el usuario acepta, llamamos a la función para programar.
+                            scheduleNotification()
+                        } else {
+                            // Si el usuario deniega, le informamos.
+                            showPermissionDeniedToast()
+                        }
+                    }
+                )
+
+                // ---> PASO 3: Lanzar la petición de permiso al iniciar la UI.
+                // LaunchedEffect(Unit) se ejecuta una sola vez cuando el composable aparece.
+                LaunchedEffect(Unit) {
+                    // Solo pedimos permiso en Android 13 (TIRAMISU) o superior.
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    } else {
+                        // En versiones anteriores, el permiso está concedido por defecto.
+                        // Podemos programar la notificación directamente.
+                        scheduleNotification()
+                    }
+                }
+
+                // El resto de tu código de navegación no necesita cambios.
                 val navController = rememberNavController()
                 val windowSizeClass: WindowSizeClass = calculateWindowSizeClass(this)
 
                 NavHost(navController = navController, startDestination = "home") {
-
                     composable("home") {
                         HomeScreen(navController, windowSizeClass)
                     }
-
-                    composable(
-                        route = "PhotoType?modo={modo}",
-                        arguments = listOf(
-                            navArgument("modo") {
-                                type = NavType.StringType
-                                defaultValue = "camara"
-                                nullable = true
-                            }
-                        )
-                    ) { backStackEntry ->
-                        val modo = backStackEntry.arguments?.getString("modo") ?: "camara"
-                        PhotoTypeScreen(navController, modo, windowSizeClass)
-                    }
-
-                    composable("PastSessions") {
-                        PastSessionsScreen(navController, windowSizeClass)
-                    }
-
-                    composable("PhotoBooth") { backStackEntry ->
-                        val selectedFrame = navController.previousBackStackEntry
-                            ?.savedStateHandle
-                            ?.get<PhotoFrame>("selectedFrame") ?: frames.first()
-
-                        PhotoBooth(
-                            navController = navController,
-                            lifecycleOwner = this@MainActivity,
-                            windowSizeClass = windowSizeClass,
-                            selectedFrame = selectedFrame
-                        )
-                    }
-
-                    // ✅ SIMPLIFICADO: PhotoResult sin MediaProjection
-                    // En la navegación, asegúrate de pasar las fotos como parámetro nuevo cada vez
+                    // ... el resto de tus rutas composable ...
                     composable("PhotoResult") { backStackEntry ->
-                        // ✅ CORRECCIÓN: Leer desde la misma pantalla
                         val photos = backStackEntry.savedStateHandle.get<ArrayList<Uri>>("photos")?.toList() ?: emptyList()
                         val frame = backStackEntry.savedStateHandle.get<PhotoFrame>("frame") ?: frames.first()
-
-                        Log.d("MainActivity", "PhotoResult recibió ${photos.size} fotos")
-                        photos.forEachIndexed { index, uri ->
-                            Log.d("MainActivity", "Foto $index: $uri")
-                        }
-
                         PhotoResultScreen(
                             photos = photos,
                             frame = frame,
@@ -171,5 +89,31 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    // ---> PASO 4: Añade estas funciones auxiliares al final de tu clase MainActivity.
+
+    /**
+     * Crea el canal de notificación necesario para Android 8.0 y superior.
+     */
+    private fun createNotificationChannel() {
+        val channelId = "reminder_channel_id"
+        val name = "Recordatorios de Sketchify"
+        val descriptionText = "Canal para notificar recordatorios de la aplicación."
+        val importance = NotificationManager.IMPORTANCE_DEFAULT
+        val channel = NotificationChannel(channelId, name, importance).apply {
+            description = descriptionText
+        }
+        val notificationManager: NotificationManager =
+            getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    // En MainActivity.kt
+    private fun scheduleNotification() {
+        NotificationReceiver.scheduleRandomAlarm(this)
+    }
+
+    private fun showPermissionDeniedToast() {
     }
 }
