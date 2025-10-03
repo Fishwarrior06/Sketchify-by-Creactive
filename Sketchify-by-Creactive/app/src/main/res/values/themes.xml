@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tu tema principal de la app se queda como estaba -->
+    <style name="Theme.Sketchify" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Atributos normales de tu app -->
+    </style>
+
+    <!-- ======== TEMA NUEVO Y DEDICADO PARA LA SPLASH SCREEN ======== -->
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <!-- Color de fondo -->
+        <item name="windowSplashScreenBackground">@color/splash_background_color</item>
+
+        <!-- Logo principal (en el centro) -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
+
+        <!-- Logo de la empresa (abajo) -->
+        <item name="android:windowSplashScreenBrandingImage">@drawable/ic_company_logo_bottom</item>
+
+        <!-- Tema que se aplicará después de que termine la splash screen -->
+        <item name="postSplashScreenTheme">@style/Theme.Sketchify</item>
+
+        <!-- =================== AÑADE ESTAS LÍNEAS =================== -->
+        <!-- Hacemos la barra de estado transparente para que se vea el fondo -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+
+        <!--
+           IMPORTANTE: Usa 'true' si tu @color/splash_background_color es CLARO.
+           Usa 'false' si tu @color/splash_background_color es OSCURO.
+           Esto cambia el color de los iconos (hora, batería) para que se puedan leer.
+        -->
+        <item name="android:windowLightStatusBar">true</item>
+        <!-- ========================================================== -->
+    </style>
+</resources>

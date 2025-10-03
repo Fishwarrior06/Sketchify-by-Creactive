@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "name": "Héctor Ortega",
+    "email": "hector@gmail.com",
+    "username": "Fishwarrior06",
+    "password": "placeholder",
+    "profilePic": null,
+    "registerDate": "2025-08-22T00:00:00Z",
+    "role": "user"
+  },
+  {
+    "id": 2,
+    "name": "Developer",
+    "email": "developer@gmail.com",
+    "username": "Developer06",
+    "password": "placeholder",
+    "profilePic": null,
+    "registerDate": "2025-08-22T00:00:00Z",
+    "role": "user"
+  }
+]
