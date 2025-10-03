@@ -21,39 +21,33 @@ class PhotoBoothController(
     private val navController: NavController,
     private val selectedFrame: PhotoFrame
 ) {
-    // Estados
+    // Estados (SIN CAMBIOS)
     var photos by mutableStateOf<List<Uri>>(emptyList())
         private set
-
     var showFlash by mutableStateOf(false)
         private set
-
     var showSnackbar by mutableStateOf(false)
         private set
-
     var countdown by mutableStateOf<Int?>(null)
         private set
-
     var takingPhotos by mutableStateOf(false)
         private set
-
     var imageCapture by mutableStateOf<ImageCapture?>(null)
         private set
 
-    // Camera
+    // Camera (SIN CAMBIOS)
     val previewView = PreviewView(context)
     private val cameraController = CameraController(context, lifecycleOwner, previewView)
 
     fun initializeCamera() {
         Log.d("PhotoBooth", "🔸 Inicializando cámara...")
         cameraController.startCamera {
-            // ← Este callback se ejecuta cuando la cámara esté lista
             imageCapture = cameraController.imageCapture
             Log.d("PhotoBooth", "🔸 Cámara lista! imageCapture: $imageCapture")
         }
     }
 
-    // En PhotoBoothScreen, en el startPhotoSession():
+    // Funciones de la sesión de fotos (SIN CAMBIOS)
     fun startPhotoSession() {
         if (!takingPhotos) {
             Log.d("PhotoBooth", "🔸 Iniciando sesión de fotos - Frame slots: ${selectedFrame.slots}")
@@ -77,15 +71,12 @@ class PhotoBoothController(
 
     private fun takePhoto() {
         Log.d("PhotoBooth", "🔸 takePhoto() INICIADA")
-
         val capture = imageCapture
         if (capture == null) {
             Log.e("PhotoBooth", "🔴 ERROR: imageCapture es NULL")
             return
         }
-
         Log.d("PhotoBooth", "🔸 imageCapture OK, creando archivo...")
-
         val file = File(
             context.cacheDir,
             "photo_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())}.jpg"
@@ -101,12 +92,10 @@ class PhotoBoothController(
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                     Log.d("PhotoBooth", "🔸 onImageSaved - Foto guardada exitosamente!")
-
                     val uri = Uri.fromFile(file)
                     photos = photos + uri
                     showFlash = true
                     showSnackbar = true
-
                     Log.d("PhotoBooth", "🔸 Total photos: ${photos.size}, Required slots: ${selectedFrame.slots}")
 
                     if (photos.size < selectedFrame.slots) {
@@ -128,28 +117,29 @@ class PhotoBoothController(
         Log.d("PhotoBooth", "🔸 takePicture() llamado, esperando callback...")
     }
 
+    // ========================================================== //
+    // =========== ¡AQUÍ ESTÁ EL CAMBIO FUNDAMENTAL! ============ //
+    // ========================================================== //
+
     private fun finishPhotoSession() {
         takingPhotos = false
         countdown = null
 
-        // ✅ CORRECCIÓN: Guardar en la pantalla DESTINO
         Log.d("PhotoBooth", "🔸 Finalizando sesión con ${photos.size} fotos")
         Log.d("PhotoBooth", "🔸 Frame: ${selectedFrame.name}")
 
-        // Primero navegar
-        navController.navigate("PhotoResult")
-
-        // Luego guardar los datos en la pantalla actual (PhotoResult)
+        // PASO 1: Guardar los datos en el "casillero" de la pantalla ACTUAL (PhotoBooth).
+        // PhotoResult los leerá desde aquí usando `previousBackStackEntry`.
         navController.currentBackStackEntry?.savedStateHandle?.apply {
             set("photos", ArrayList(photos))
             set("frame", selectedFrame)
-            Log.d("PhotoBooth", "🔸 Datos guardados en PhotoResult")
+            Log.d("PhotoBooth", "🔸 Datos guardados en el casillero de PhotoBooth.")
         }
+
+        // PASO 2: Ahora que los datos están guardados, navegamos.
+        navController.navigate("PhotoResult")
     }
 
-    fun switchCamera() {
-        cameraController.switchCamera()
-    }
 
     fun hideFlash() {
         showFlash = false

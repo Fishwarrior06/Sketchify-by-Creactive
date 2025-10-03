@@ -1,3 +1,4 @@
+// Archivo: com/creactive/sketchify/ui/screens/HomeScreen.kt
 package com.creactive.sketchify.ui.screens
 
 import androidx.compose.animation.Crossfade
@@ -23,9 +24,7 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -39,7 +38,8 @@ import com.creactive.sketchify.R
 
 @Composable
 fun HomeScreen(navController: NavController, windowSizeClass: WindowSizeClass) {
-    var modo by remember { mutableStateOf("") }
+    // El estado 'modo' no se usa en esta pantalla, se puede eliminar si no lo necesitas para otra cosa.
+    // var modo by remember { mutableStateOf("") }
 
     // --- Ajustes dinámicos (sin cambios) ---
     val imageHeight = when (windowSizeClass.widthSizeClass) {
@@ -88,36 +88,26 @@ fun HomeScreen(navController: NavController, windowSizeClass: WindowSizeClass) {
                         .height(150.dp)
                 )
 
-                // ============ INICIO DE LOS CAMBIOS PARA LA IMAGEN CENTRAL ============
-
-                // 1. Creamos un InteractionSource para la imagen, igual que para los botones.
+                // --- Imagen central con efecto (sin cambios) ---
                 val imageInteractionSource = remember { MutableInteractionSource() }
                 val isImagePressed by imageInteractionSource.collectIsPressedAsState()
-
-                // 2. Determinar la imagen a mostrar basándose en si está presionada o no.
                 val imagenActual = if (isImagePressed) {
                     R.drawable.homescreenlogo_pressed
                 } else {
                     R.drawable.homescreenlogo
                 }
 
-                // 3. El Box ahora es clickable y usa el InteractionSource.
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(imageHeight)
                         .clickable(
                             interactionSource = imageInteractionSource,
-                            indication = null, // Desactiva el efecto de "ripple" (ondulación)
-                            onClick = {
-                                // Aquí puedes añadir una acción si quieres que pase algo
-                                // al completar el clic (presionar Y soltar).
-                                // Si solo quieres el efecto visual, déjalo vacío.
-                            }
+                            indication = null,
+                            onClick = {}
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    // 4. Crossfade se encarga de la transición suave. ¡No necesita cambios!
                     Crossfade(targetState = imagenActual, label = "image_fade") { imagenResource ->
                         Image(
                             painter = painterResource(id = imagenResource),
@@ -127,14 +117,11 @@ fun HomeScreen(navController: NavController, windowSizeClass: WindowSizeClass) {
                     }
                 }
 
-                // ==================== FIN DE LOS CAMBIOS ====================
-
                 Spacer(modifier = Modifier.weight(1f))
 
-                // --- Bloque de botones (tu código ya era perfecto aquí) ---
+                // --- Bloque de botones ---
                 val interactionSource1 = remember { MutableInteractionSource() }
                 val isPressed1 by interactionSource1.collectIsPressedAsState()
-
                 val interactionSource2 = remember { MutableInteractionSource() }
                 val isPressed2 by interactionSource2.collectIsPressedAsState()
 
@@ -187,9 +174,17 @@ fun HomeScreen(navController: NavController, windowSizeClass: WindowSizeClass) {
                     }
                     Spacer(modifier = Modifier.height(buttonSpacing))
 
+                    // ============ INICIO DEL CAMBIO: BOTÓN OCULTADO ============
+                    /*
+                    He comentado este bloque. Si quieres eliminarlo por completo,
+                    también es válido.
+                    */
+                    /*
                     Button(onClick = { navController.navigate("PastSessions") }) {
                         Text("Sesiones pasadas")
                     }
+                    */
+                    // ============== FIN DEL CAMBIO =============================
                 }
             }
         }
