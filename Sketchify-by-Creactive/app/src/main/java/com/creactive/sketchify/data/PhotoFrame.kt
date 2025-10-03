@@ -18,7 +18,7 @@ data class PhotoFrame(
     val name: String,
     val slots: Int,
     val drawableRes: Int,
-    val photoSlots: List<PhotoSlot>  // ✅ Posiciones de cada recuadro
+    val photoSlots: List<PhotoSlot>  // Posiciones de cada recuadro
 ) : Parcelable
 
 val frames = listOf(

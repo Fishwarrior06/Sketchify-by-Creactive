@@ -21,10 +21,6 @@ class NotificationReceiver : BroadcastReceiver() {
         Log.d("NotificationReceiver", "Alarma recibida. Mostrando notificación.")
         // 1. Mostrar la notificación
         showNotification(context)
-        // 2. Opcional: Reprogramar la siguiente alarma.
-        // Si quieres que se programe una y otra vez, descomenta la siguiente línea.
-        // Si solo quieres una notificación (la que se programa en MainActivity), mantenla comentada.
-        // scheduleRandomAlarm(context)
     }
 
     private fun showNotification(context: Context) {
@@ -55,29 +51,12 @@ class NotificationReceiver : BroadcastReceiver() {
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
 
-            // --- CAMBIOS PRINCIPALES AQUÍ ---
-            // Hemos eliminado la comprobación de `canScheduleExactAlarms()`
-            // y vamos a usar un método de alarma más flexible.
-
             // La lógica para calcular la hora aleatoria no cambia
             val calendar = Calendar.getInstance()
 
             // Para probarlo rápidamente, programemos la alarma para dentro de 15 segundos
             val triggerAtMillis = System.currentTimeMillis() + 15_000 // 15 segundos
             calendar.timeInMillis = triggerAtMillis
-
-            /*
-            // Si prefieres la lógica original de hora aleatoria para el futuro:
-            val randomHour = Random.nextInt(9, 22)
-            val randomMinute = Random.nextInt(0, 60)
-            val now = Calendar.getInstance()
-            calendar.set(Calendar.HOUR_OF_DAY, randomHour)
-            calendar.set(Calendar.MINUTE, randomMinute)
-            calendar.set(Calendar.SECOND, 0)
-            if (calendar.before(now)) {
-                calendar.add(Calendar.DAY_OF_YEAR, 1) // Si ya pasó la hora, programar para mañana
-            }
-            */
 
             // Usamos set() en lugar de setExactAndAllowWhileIdle().
             // No requiere permisos especiales y es ideal para recordatorios que no son críticos en el tiempo.
