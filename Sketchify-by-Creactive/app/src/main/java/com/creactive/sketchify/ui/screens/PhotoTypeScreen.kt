@@ -119,6 +119,11 @@ fun PhotoTypeScreen(navController: NavController, modo: String, windowSizeClass:
         else -> 400.dp
     }
 
+    val navigateToPhotoBooth = { selectedFrame: PhotoFrame ->
+        // Construimos la nueva ruta con el modo y el nombre del frame
+        navController.navigate("PhotoBooth/${modo}/${selectedFrame.name}")
+    }
+
     Scaffold { padding ->
         Box(
             modifier = Modifier
@@ -184,6 +189,7 @@ fun PhotoTypeScreen(navController: NavController, modo: String, windowSizeClass:
                             .height(310.dp),
                     ) {
                         // BOX 1
+                        // Ejemplo completo para el BOX 1
                         FrameBox(
                             frame = frames.getOrNull(0),
                             isSelected = selectedIndex == 0,
@@ -195,20 +201,7 @@ fun PhotoTypeScreen(navController: NavController, modo: String, windowSizeClass:
                             onBoxClick = {
                                 selectedIndex = 0
                                 frames.getOrNull(0)?.let { selectedFrame ->
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        "selectedFrame",
-                                        selectedFrame
-                                    )
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        "modo",
-                                        modo
-                                    )
-
-                                    if (modo == "camara") {
-                                        navController.navigate("PhotoBooth")
-                                    } else {
-                                        navController.navigate("OtroModoScreen")
-                                    }
+                                    navigateToPhotoBooth(selectedFrame)
                                 }
                             }
                         )
@@ -225,20 +218,7 @@ fun PhotoTypeScreen(navController: NavController, modo: String, windowSizeClass:
                             onBoxClick = {
                                 selectedIndex = 1
                                 frames.getOrNull(1)?.let { selectedFrame ->
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        "selectedFrame",
-                                        selectedFrame
-                                    )
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        "modo",
-                                        modo
-                                    )
-
-                                    if (modo == "camara") {
-                                        navController.navigate("PhotoBooth")
-                                    } else {
-                                        navController.navigate("OtroModoScreen")
-                                    }
+                                    navigateToPhotoBooth(selectedFrame)
                                 }
                             }
                         )
@@ -261,20 +241,7 @@ fun PhotoTypeScreen(navController: NavController, modo: String, windowSizeClass:
                             onBoxClick = {
                                 selectedIndex = 2
                                 frames.getOrNull(2)?.let { selectedFrame ->
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        "selectedFrame",
-                                        selectedFrame
-                                    )
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        "modo",
-                                        modo
-                                    )
-
-                                    if (modo == "camara") {
-                                        navController.navigate("PhotoBooth")
-                                    } else {
-                                        navController.navigate("OtroModoScreen")
-                                    }
+                                    navigateToPhotoBooth(selectedFrame)
                                 }
                             }
                         )
@@ -291,20 +258,7 @@ fun PhotoTypeScreen(navController: NavController, modo: String, windowSizeClass:
                             onBoxClick = {
                                 selectedIndex = 3
                                 frames.getOrNull(3)?.let { selectedFrame ->
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        "selectedFrame",
-                                        selectedFrame
-                                    )
-                                    navController.currentBackStackEntry?.savedStateHandle?.set(
-                                        "modo",
-                                        modo
-                                    )
-
-                                    if (modo == "camara") {
-                                        navController.navigate("PhotoBooth")
-                                    } else {
-                                        navController.navigate("OtroModoScreen")
-                                    }
+                                    navigateToPhotoBooth(selectedFrame)
                                 }
                             }
                         )

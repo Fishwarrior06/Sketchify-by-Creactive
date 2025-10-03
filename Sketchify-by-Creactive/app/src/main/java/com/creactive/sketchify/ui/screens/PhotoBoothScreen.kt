@@ -55,6 +55,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.creactive.sketchify.R
 import com.creactive.sketchify.data.PhotoFrame
+import com.creactive.sketchify.modules.GalleryLauncher // <-- IMPORTANTE: Módulo de galería
 import com.creactive.sketchify.modules.PhotoBoothController
 
 @Composable
@@ -62,103 +63,114 @@ fun PhotoBooth(
     navController: NavController,
     lifecycleOwner: LifecycleOwner,
     windowSizeClass: WindowSizeClass,
-    selectedFrame: PhotoFrame
+    selectedFrame: PhotoFrame,
+    modo: String
 ) {
-    val context = LocalContext.current
+    // Usamos `when` para decidir el flujo basado en el `modo` en minúsculas
+    when (modo) {
 
-    // Controller que maneja toda la lógica
-    val controller = remember {
-        PhotoBoothController(context, lifecycleOwner, navController, selectedFrame)
-    }
+        "camara" -> {
+            // --- INICIO: LÓGICA DEL MODO CÁMARA (TU CÓDIGO ORIGINAL) ---
+            val context = LocalContext.current
 
-    // Permisos
-    var hasPermission by remember {
-        mutableStateOf(
-            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
-                    == PackageManager.PERMISSION_GRANTED
-        )
-    }
-
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { granted -> hasPermission = granted }
-    )
-
-    LaunchedEffect(Unit) {
-        if (!hasPermission) launcher.launch(Manifest.permission.CAMERA)
-    }
-
-    // Responsive sizing
-    val boxWidth = when (windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> 350.dp
-        WindowWidthSizeClass.Medium -> 450.dp
-        WindowWidthSizeClass.Expanded -> 550.dp
-        else -> 350.dp
-    }
-
-    val boxHeight = when (windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> 500.dp
-        WindowWidthSizeClass.Medium -> 600.dp
-        WindowWidthSizeClass.Expanded -> 700.dp
-        else -> 500.dp
-    }
-
-    val btnHeight = when (windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> 50.dp
-        WindowWidthSizeClass.Medium -> 80.dp
-        WindowWidthSizeClass.Expanded -> 110.dp
-        else -> 50.dp
-    }
-
-    val btnWidth = when (windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> 60.dp
-        WindowWidthSizeClass.Medium -> 90.dp
-        WindowWidthSizeClass.Expanded -> 120.dp
-        else -> 60.dp
-    }
-
-    val spacing = when (windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> 10.dp
-        WindowWidthSizeClass.Medium -> 14.dp
-        WindowWidthSizeClass.Expanded -> 16.dp
-        else -> 8.dp
-    }
-
-    if (hasPermission) {
-        // Inicializar cámara
-        DisposableEffect(Unit) {
-            controller.initializeCamera()
-            onDispose { }
-        }
-
-        // Manejar countdown
-        LaunchedEffect(controller.countdown) {
-            if (controller.countdown != null && controller.countdown!! > 0) {
-                kotlinx.coroutines.delay(1000)
-                controller.handleCountdown()
-            } else if (controller.countdown == 0) {
-                controller.handleCountdown()
+            val controller = remember {
+                PhotoBoothController(context, lifecycleOwner, navController, selectedFrame)
             }
+
+            var hasPermission by remember {
+                mutableStateOf(
+                    ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                            == PackageManager.PERMISSION_GRANTED
+                )
+            }
+
+            val launcher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.RequestPermission(),
+                onResult = { granted -> hasPermission = granted }
+            )
+
+            LaunchedEffect(Unit) {
+                if (!hasPermission) launcher.launch(Manifest.permission.CAMERA)
+            }
+
+            // Responsive sizing
+            val boxWidth = when (windowSizeClass.widthSizeClass) {
+                WindowWidthSizeClass.Compact -> 350.dp
+                WindowWidthSizeClass.Medium -> 450.dp
+                WindowWidthSizeClass.Expanded -> 550.dp
+                else -> 350.dp
+            }
+
+            val boxHeight = when (windowSizeClass.widthSizeClass) {
+                WindowWidthSizeClass.Compact -> 500.dp
+                WindowWidthSizeClass.Medium -> 600.dp
+                WindowWidthSizeClass.Expanded -> 700.dp
+                else -> 500.dp
+            }
+
+            val btnHeight = when (windowSizeClass.widthSizeClass) {
+                WindowWidthSizeClass.Compact -> 50.dp
+                WindowWidthSizeClass.Medium -> 80.dp
+                WindowWidthSizeClass.Expanded -> 110.dp
+                else -> 50.dp
+            }
+
+            val btnWidth = when (windowSizeClass.widthSizeClass) {
+                WindowWidthSizeClass.Compact -> 60.dp
+                WindowWidthSizeClass.Medium -> 90.dp
+                WindowWidthSizeClass.Expanded -> 120.dp
+                else -> 60.dp
+            }
+
+            val spacing = when (windowSizeClass.widthSizeClass) {
+                WindowWidthSizeClass.Compact -> 10.dp
+                WindowWidthSizeClass.Medium -> 14.dp
+                WindowWidthSizeClass.Expanded -> 16.dp
+                else -> 8.dp
+            }
+
+            if (hasPermission) {
+                DisposableEffect(Unit) {
+                    controller.initializeCamera()
+                    onDispose { }
+                }
+
+                LaunchedEffect(controller.countdown) {
+                    if (controller.countdown != null && controller.countdown!! > 0) {
+                        kotlinx.coroutines.delay(1000)
+                        controller.handleCountdown()
+                    } else if (controller.countdown == 0) {
+                        controller.handleCountdown()
+                    }
+                }
+
+                PhotoBoothUI(
+                    boxWidth = boxWidth,
+                    boxHeight = boxHeight,
+                    btnWidth = btnWidth,
+                    spacing = spacing,
+                    btnHeight = btnHeight,
+                    previewView = controller.previewView,
+                    onShutterClick = { controller.startPhotoSession() },
+                    showFlash = controller.showFlash,
+                    onFlashComplete = { controller.hideFlash() },
+                    countdown = controller.countdown,
+                    navController = navController
+                )
+            } else {
+                PermissionUI(onRequestPermission = { launcher.launch(Manifest.permission.CAMERA) })
+            }
+            // --- FIN: LÓGICA DEL MODO CÁMARA ---
         }
 
-        // UI
-        PhotoBoothUI(
-            boxWidth = boxWidth,
-            boxHeight = boxHeight,
-            btnWidth = btnWidth,
-            spacing = spacing,
-            btnHeight = btnHeight,
-            previewView = controller.previewView,
-            onShutterClick = { controller.startPhotoSession() },
-            showFlash = controller.showFlash,
-            onFlashComplete = { controller.hideFlash() },
-            showSnackbar = controller.showSnackbar,
-            onSnackbarShown = { controller.hideSnackbar() },
-            countdown = controller.countdown,
-            navController = navController
-        )
-    } else {
-        PermissionUI(onRequestPermission = { launcher.launch(Manifest.permission.CAMERA) })
+        "galeria" -> {
+            // --- INICIO: LÓGICA DEL MODO GALERÍA ---
+            GalleryLauncher(
+                navController = navController,
+                selectedFrame = selectedFrame
+            )
+            // --- FIN: LÓGICA DEL MODO GALERÍA ---
+        }
     }
 }
 
@@ -182,19 +194,10 @@ fun PhotoBoothUI(
     onShutterClick: () -> Unit = {},
     showFlash: Boolean = false,
     onFlashComplete: () -> Unit = {},
-    showSnackbar: Boolean = false,
-    onSnackbarShown: () -> Unit = {},
     countdown: Int? = null,
     navController: NavController? = null
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-
-    LaunchedEffect(showSnackbar) {
-        if (showSnackbar) {
-            snackbarHostState.showSnackbar("📸 Foto tomada")
-            onSnackbarShown()
-        }
-    }
 
     Box(modifier = Modifier
         .fillMaxSize()
@@ -253,7 +256,9 @@ fun PhotoBoothUI(
 
             Button(
                 onClick = {
-                    // Acción del segundo botón
+                    navController?.navigate("home") {
+                        popUpTo("home") { inclusive = true }
+                    }
                 },
                 modifier = Modifier
                     .scale(if (isPressed2) 0.95f else 1f)
@@ -408,8 +413,6 @@ fun PhotoBoothUIPreview() {
             onShutterClick = {},
             showFlash = false,
             onFlashComplete = {},
-            showSnackbar = false,
-            onSnackbarShown = {},
             countdown = null,
             navController = rememberNavController()
         )

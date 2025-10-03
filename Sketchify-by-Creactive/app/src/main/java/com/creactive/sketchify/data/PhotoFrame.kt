@@ -29,7 +29,7 @@ val frames = listOf(
         slots = 1,
         drawableRes = R.drawable.frame1,
         photoSlots = listOf(
-            PhotoSlot(x = 0.065f, y = 0.12f, width = 0.537f, height = 0.475f)     // Foto centrada
+            PhotoSlot(x = 0.065f, y = 0.109f, width = 0.537f, height = 0.428f)     // Foto centrada
         )
     ),
 
@@ -40,8 +40,8 @@ val frames = listOf(
         slots = 2,
         drawableRes = R.drawable.frame2,
         photoSlots = listOf(
-            PhotoSlot(x = 0.143f, y = 0.231f, width = 0.413f, height = 0.162f),   // Foto izquierda
-            PhotoSlot(x = 0.143f, y = 0.400f, width = 0.413f, height = 0.162f)    // Foto derecha
+            PhotoSlot(x = 0.143f, y = 0.209f, width = 0.413f, height = 0.146f),   // Foto izquierda
+            PhotoSlot(x = 0.143f, y = 0.362f, width = 0.413f, height = 0.145f)    // Foto derecha
         )
     ),
 
@@ -52,9 +52,9 @@ val frames = listOf(
         slots = 3,
         drawableRes = R.drawable.frame3,
         photoSlots = listOf(
-            PhotoSlot(x = 0.081f, y = 0.092f, width = 0.50f, height = 0.18f),  // Foto 1 (arriba)
-            PhotoSlot(x = 0.081f, y = 0.277f, width = 0.50f, height = 0.176f),  // Foto 2 (centro)
-            PhotoSlot(x = 0.081f, y = 0.457f, width = 0.50f, height = 0.177f)   // Foto 3 (abajo)
+            PhotoSlot(x = 0.0811f, y = 0.082f, width = 0.50f, height = 0.165f),  // Foto 1 (arriba)
+            PhotoSlot(x = 0.081f, y = 0.251f, width = 0.50f, height = 0.159f),  // Foto 2 (centro)
+            PhotoSlot(x = 0.081f, y = 0.414f, width = 0.50f, height = 0.159f)   // Foto 3 (abajo)
         )
     ),
 
@@ -65,10 +65,10 @@ val frames = listOf(
         slots = 4,
         drawableRes = R.drawable.frame4,
         photoSlots = listOf(
-            PhotoSlot(x = 0.0423f, y = 0.192f, width = 0.275f, height = 0.177f),  // Arriba izquierda
-            PhotoSlot(x = 0.34f, y = 0.192f, width = 0.275f, height = 0.177f),  // Arriba derecha
-            PhotoSlot(x = 0.0423f, y = 0.386f, width = 0.275f, height = 0.177f),  // Abajo izquierda
-            PhotoSlot(x = 0.34f, y = 0.386f, width = 0.275f, height = 0.177f)   // Abajo derecha
+            PhotoSlot(x = 0.0423f, y = 0.174f, width = 0.275f, height = 0.160f),  // Arriba izquierda
+            PhotoSlot(x = 0.34f, y = 0.174f, width = 0.275f, height = 0.160f),  // Arriba derecha
+            PhotoSlot(x = 0.0423f, y = 0.349f, width = 0.275f, height = 0.160f),  // Abajo izquierda
+            PhotoSlot(x = 0.34f, y = 0.349f, width = 0.275f, height = 0.160f)   // Abajo derecha
         )
     )
 )

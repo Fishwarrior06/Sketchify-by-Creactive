@@ -1,50 +1,59 @@
 package com.creactive.sketchify.ui.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.DpSize
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
-import androidx.compose.ui.res.painterResource
-import com.creactive.sketchify.R
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.creactive.sketchify.R
 
 @Composable
 fun HomeScreen(navController: NavController, windowSizeClass: WindowSizeClass) {
-    var currentImage by remember { mutableStateOf<String?>(null) }
-    var hasPhoto by remember { mutableStateOf(false) }
     var modo by remember { mutableStateOf("") }
 
-    // Ajustes dinámicos según pantalla
+    // --- Ajustes dinámicos (sin cambios) ---
     val imageHeight = when (windowSizeClass.widthSizeClass) {
         WindowWidthSizeClass.Compact -> 500.dp
         WindowWidthSizeClass.Medium -> 685.dp
         WindowWidthSizeClass.Expanded -> 590.dp
         else -> 585.dp
     }
-
     val buttonSpacing = when (windowSizeClass.widthSizeClass) {
         WindowWidthSizeClass.Compact -> 8.dp
         WindowWidthSizeClass.Medium -> 12.dp
         WindowWidthSizeClass.Expanded -> 20.dp
         else -> 12.dp
     }
-
     val btnHeight = when (windowSizeClass.widthSizeClass) {
         WindowWidthSizeClass.Compact -> 60.dp
         WindowWidthSizeClass.Medium -> 90.dp
@@ -58,7 +67,6 @@ fun HomeScreen(navController: NavController, windowSizeClass: WindowSizeClass) {
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // 🖼️ IMAGEN DE FONDO
             Image(
                 painter = painterResource(id = R.drawable.background),
                 contentDescription = "Background",
@@ -66,7 +74,6 @@ fun HomeScreen(navController: NavController, windowSizeClass: WindowSizeClass) {
                 contentScale = ContentScale.Crop
             )
 
-            // 📱 CONTENIDO ENCIMA
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -76,102 +83,108 @@ fun HomeScreen(navController: NavController, windowSizeClass: WindowSizeClass) {
                 Image(
                     painter = painterResource(id = R.drawable.homescreentext),
                     contentDescription = "Texto homescreen",
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .height(150.dp)
                 )
 
-                // 📦 Área de imagen
+                // ============ INICIO DE LOS CAMBIOS PARA LA IMAGEN CENTRAL ============
+
+                // 1. Creamos un InteractionSource para la imagen, igual que para los botones.
+                val imageInteractionSource = remember { MutableInteractionSource() }
+                val isImagePressed by imageInteractionSource.collectIsPressedAsState()
+
+                // 2. Determinar la imagen a mostrar basándose en si está presionada o no.
+                val imagenActual = if (isImagePressed) {
+                    R.drawable.homescreenlogo_pressed
+                } else {
+                    R.drawable.homescreenlogo
+                }
+
+                // 3. El Box ahora es clickable y usa el InteractionSource.
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(imageHeight)
-                        .background(Color.Transparent),
+                        .clickable(
+                            interactionSource = imageInteractionSource,
+                            indication = null, // Desactiva el efecto de "ripple" (ondulación)
+                            onClick = {
+                                // Aquí puedes añadir una acción si quieres que pase algo
+                                // al completar el clic (presionar Y soltar).
+                                // Si solo quieres el efecto visual, déjalo vacío.
+                            }
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.homescreenlogo),
-                        contentDescription = "Imagen de la box",
-                        modifier = Modifier.fillMaxSize()
-                    )
+                    // 4. Crossfade se encarga de la transición suave. ¡No necesita cambios!
+                    Crossfade(targetState = imagenActual, label = "image_fade") { imagenResource ->
+                        Image(
+                            painter = painterResource(id = imagenResource),
+                            contentDescription = "Imagen principal",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
 
-                Spacer(modifier = Modifier.weight(1f)) // empuja botones abajo
+                // ==================== FIN DE LOS CAMBIOS ====================
 
+                Spacer(modifier = Modifier.weight(1f))
+
+                // --- Bloque de botones (tu código ya era perfecto aquí) ---
                 val interactionSource1 = remember { MutableInteractionSource() }
                 val isPressed1 by interactionSource1.collectIsPressedAsState()
 
                 val interactionSource2 = remember { MutableInteractionSource() }
                 val isPressed2 by interactionSource2.collectIsPressedAsState()
 
-                // 🔘 Bloque de botones
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Button(
-                            onClick = {
-                                modo = "galeria"
-                                navController.navigate("PhotoType?modo=galeria")
-                            },
+                            onClick = { navController.navigate("PhotoType/galeria") },
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(end = buttonSpacing)
                                 .scale(if (isPressed1) 0.95f else 1f)
                                 .alpha(if (isPressed1) 0.8f else 1f),
                             interactionSource = interactionSource1,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Transparent,
-                                contentColor = Color.Transparent
-                            ),
-                            contentPadding = PaddingValues(0.dp),
-                            border = null,
-                            elevation = ButtonDefaults.buttonElevation(
-                                defaultElevation = 0.dp,
-                                pressedElevation = 0.dp
-                            )
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                            contentPadding = PaddingValues(0.dp)
                         ) {
                             Image(
                                 painter = painterResource(id = R.drawable.upload_button),
                                 contentDescription = "Subir desde galería",
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
                                     .height(btnHeight),
                                 contentScale = ContentScale.FillBounds
                             )
                         }
 
                         Button(
-                            onClick = {
-                                modo = "camara"
-                                navController.navigate("PhotoType?modo=camara")
-                            },
+                            onClick = { navController.navigate("PhotoType/camara") },
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(start = buttonSpacing)
                                 .scale(if (isPressed2) 0.95f else 1f)
                                 .alpha(if (isPressed2) 0.8f else 1f),
                             interactionSource = interactionSource2,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Transparent,
-                                contentColor = Color.Transparent
-                            ),
-                            contentPadding = PaddingValues(0.dp),
-                            border = null,
-                            elevation = ButtonDefaults.buttonElevation(
-                                defaultElevation = 0.dp,
-                                pressedElevation = 0.dp
-                            )
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                            contentPadding = PaddingValues(0.dp)
                         ) {
                             Image(
                                 painter = painterResource(id = R.drawable.take_button),
                                 contentDescription = "Tomar foto con cámara",
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
                                     .height(btnHeight),
                                 contentScale = ContentScale.FillBounds
                             )
                         }
                     }
-
                     Spacer(modifier = Modifier.height(buttonSpacing))
 
                     Button(onClick = { navController.navigate("PastSessions") }) {
@@ -181,14 +194,4 @@ fun HomeScreen(navController: NavController, windowSizeClass: WindowSizeClass) {
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-@Preview(showBackground = true, widthDp = 400, heightDp = 800)
-@Composable
-fun HomeScreenPreviewCompact() {
-    HomeScreen(
-        navController = rememberNavController(),
-        windowSizeClass = WindowSizeClass.calculateFromSize(DpSize(400.dp, 800.dp))
-    )
 }

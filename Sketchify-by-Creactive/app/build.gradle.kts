@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.creactive.sketchify"
-        minSdk = 30
+        minSdk = 31
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -76,4 +76,5 @@ dependencies {
     implementation(libs.androidx.camera.view)
     implementation("androidx.camera:camera-extensions:1.5.0")
     implementation("dev.shreyaspatil:capturable:3.0.1")
+    implementation("androidx.core:core-splashscreen:1.0.1")
 }
